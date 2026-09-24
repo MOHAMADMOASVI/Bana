@@ -48,6 +48,15 @@ final class DetectionTests: XCTestCase {
         let py = CommandBuilder.spec(for: projects["lara"]!, type: .python, port: 9000, customCommand: nil)
         XCTAssertEqual(py.arguments, ["main:app", "--host", "0.0.0.0", "--port", "9000"])
 
+        try make("fast/main.py", "from fastapi import FastAPI\napp = FastAPI()\n")
+        try make("flask/main.py", "from flask import Flask\napp = Flask(__name__)\n")
+        try make("script/main.py", "import argparse\nprint('hi')\n")
+        let py3 = { (name: String) in CommandBuilder.spec(for: Project(url: self.root.appendingPathComponent(name), detectedType: .python, relativePath: name), type: .python, port: 9001, customCommand: nil) }
+        XCTAssertEqual(py3("fast").program, "uvicorn")
+        XCTAssertEqual(py3("flask").arguments, ["--app", "main", "run", "--host", "0.0.0.0", "--port", "9001"])
+        XCTAssertEqual(py3("script").program, "python3")
+        XCTAssertNil(py3("script").port)
+
         XCTAssertEqual(CommandBuilder.spec(for: projects["dock"]!, type: .docker, port: 1, customCommand: nil).port, 8088)
 
         let custom = CommandBuilder.spec(for: projects["lara"]!, type: .php, port: 7000,

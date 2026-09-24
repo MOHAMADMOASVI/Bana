@@ -39,11 +39,23 @@ enum CommandBuilder {
             return LaunchSpec(program: "php", arguments: args, environment: env, port: port)
 
         case .python:
-            let module = !fm.fileExists(atPath: dir.appendingPathComponent("main.py").path)
-                && fm.fileExists(atPath: dir.appendingPathComponent("app/main.py").path) ? "app.main:app" : "main:app"
-            return LaunchSpec(program: "uvicorn",
-                              arguments: [module, "--host", "0.0.0.0", "--port", String(port)],
-                              environment: env, port: port)
+            let hasRoot = fm.fileExists(atPath: dir.appendingPathComponent("main.py").path)
+            let hasApp = fm.fileExists(atPath: dir.appendingPathComponent("app/main.py").path)
+            let entry = hasRoot || !hasApp ? "main.py" : "app/main.py"
+            let source = (try? String(contentsOf: dir.appendingPathComponent(entry), encoding: .utf8)) ?? ""
+            let module = entry == "main.py" ? "main" : "app.main"
+            if source.contains("FastAPI(") || source.contains("Starlette(") || source.isEmpty {
+                return LaunchSpec(program: "uvicorn",
+                                  arguments: ["\(module):app", "--host", "0.0.0.0", "--port", String(port)],
+                                  environment: env, port: port)
+            }
+            if source.contains("Flask(") {
+                return LaunchSpec(program: "flask",
+                                  arguments: ["--app", module, "run", "--host", "0.0.0.0", "--port", String(port)],
+                                  environment: env, port: port)
+            }
+            // A script or desktop app, not a web server: run it, no URL.
+            return LaunchSpec(program: "python3", arguments: ["-u", entry], environment: env, port: nil)
 
         case .node:
             let scripts = packageScripts(in: dir)

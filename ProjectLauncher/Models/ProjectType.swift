@@ -43,7 +43,7 @@ enum ProjectType: String, Codable, CaseIterable, Identifiable {
 
     /// Key files checked in priority order; first match wins.
     static let markers: [(ProjectType, [String])] = [
-        (.php, ["composer.json", "index.php"]),
+        (.php, ["composer.json", "index.php", "public/index.php"]),
         (.python, ["requirements.txt", "main.py"]),
         (.node, ["package.json"]),
         (.docker, ["docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"]),

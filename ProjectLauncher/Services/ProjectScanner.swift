@@ -2,7 +2,7 @@ import Foundation
 
 enum ProjectScanner {
     /// How deep below the root to look. A folder that is itself a project is not descended into.
-    static let maxDepth = 3
+    static let maxDepth = 5
     static let skipped: Set<String> = [
         "node_modules", "vendor", "build", "dist", "Pods", "DerivedData",
         "venv", "__pycache__", "storage", "Library",

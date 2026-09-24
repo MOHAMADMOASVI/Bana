@@ -2,20 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- App Sandbox. Child processes (php, uvicorn, npm) inherit this sandbox. -->
+	<!-- Sandbox off: servers need ~/.nvm, ~/.pyenv, ~/.composer, /tmp and the rest of the home folder.
+	     To re-enable, set true and add network.server/client, files.user-selected.read-write,
+	     files.bookmarks.app-scope (the code already handles a sandboxed run). -->
 	<key>com.apple.security.app-sandbox</key>
-	<true/>
-	<!-- Servers bind 0.0.0.0:PORT → needs incoming connections. -->
-	<key>com.apple.security.network.server</key>
-	<true/>
-	<!-- npm install / proxies / readiness probe to localhost. -->
-	<key>com.apple.security.network.client</key>
-	<true/>
-	<!-- Root folder chosen with NSOpenPanel (read-write: servers write caches, logs, sqlite). -->
-	<key>com.apple.security.files.user-selected.read-write</key>
-	<true/>
-	<!-- Remember the chosen root folder across launches. -->
-	<key>com.apple.security.files.bookmarks.app-scope</key>
-	<true/>
+	<false/>
 </dict>
 </plist>
