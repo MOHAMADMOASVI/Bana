@@ -17,11 +17,11 @@ struct ContentView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 if store.isScanning { ProgressView().controlSize(.small) }
-                Button { store.rescan() } label: { Label("Rescan", systemImage: "arrow.clockwise") }
-                    .help("Rescan projects (⌘R)")
+                Button { store.rescan() } label: { Label("اسکن دوباره", systemImage: "arrow.clockwise") }
+                    .help("اسکن دوبارهٔ پروژه‌ها (⌘R)")
                     .disabled(store.rootURL == nil)
-                Button { store.chooseRoot() } label: { Label("Choose Folder", systemImage: "folder") }
-                    .help("Choose projects folder (⌘O)")
+                Button { store.chooseRoot() } label: { Label("انتخاب پوشه", systemImage: "folder") }
+                    .help("انتخاب پوشهٔ پروژه‌ها (⌘O)")
             }
         }
     }

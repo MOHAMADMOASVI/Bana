@@ -3,7 +3,7 @@ import SwiftUI
 /// Live stdout/stderr, auto-scrolling to the newest line.
 struct LogView: View {
     let lines: [LogLine]
-    var title = "Output"
+    var title: LocalizedStringKey = "خروجی"
     var onClear: (() -> Void)?
     @AppStorage("logAutoScroll") private var autoScroll = true
     private static let bottomID = "log-bottom"
@@ -12,16 +12,16 @@ struct LogView: View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 Text(title).font(.headline)
-                Text("\(lines.count) lines").font(.caption).foregroundStyle(.secondary)
+                Text("\(lines.count) خط").font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Toggle(isOn: $autoScroll) { Label("Auto-scroll", systemImage: "arrow.down.to.line") }
+                Toggle(isOn: $autoScroll) { Label("دنبال کردن خروجی", systemImage: "arrow.down.to.line") }
                     .toggleStyle(.button)
-                    .help("Follow new output")
-                Button { copyAll() } label: { Label("Copy", systemImage: "doc.on.doc") }
-                    .help("Copy log")
+                    .help("رفتن خودکار به آخرین خط")
+                Button { copyAll() } label: { Label("کپی", systemImage: "doc.on.doc") }
+                    .help("کپی خروجی")
                 if let onClear {
-                    Button(action: onClear) { Label("Clear", systemImage: "trash") }
-                        .help("Clear log")
+                    Button(action: onClear) { Label("پاک کردن", systemImage: "trash") }
+                        .help("پاک کردن خروجی")
                 }
             }
             .labelStyle(.iconOnly)
@@ -35,12 +35,14 @@ struct LogView: View {
                     LazyVStack(alignment: .leading, spacing: 1) {
                         ForEach(lines) { line in
                             Text(line.text.isEmpty ? " " : line.text)
+                                // Bana's own (Persian) messages need a proportional font; monospace breaks Persian joining.
+                                .font(line.stream == .system ? .system(size: 12) : .system(size: 11.5, design: .monospaced))
                                 .foregroundStyle(color(for: line))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         Color.clear.frame(height: 1).id(Self.bottomID)
                     }
-                    .font(.system(size: 11.5, design: .monospaced))
+                    .ltr() // tool output is left-to-right
                     .textSelection(.enabled)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
@@ -53,7 +55,7 @@ struct LogView: View {
                 .onAppear { proxy.scrollTo(Self.bottomID, anchor: .bottom) }
                 .overlay {
                     if lines.isEmpty {
-                        Text("No output yet").foregroundStyle(.tertiary)
+                        Text("هنوز خروجی‌ای نیست").foregroundStyle(.tertiary)
                     }
                 }
             }

@@ -20,7 +20,7 @@ struct ProjectCard: View {
                     HStack(spacing: 6) {
                         StatusBadge(status: runtime.status)
                         if let port = runtime.port, runtime.status.isActive {
-                            Text(":\(String(port))").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                            Text(":\(String(port))").ltr().font(.caption.monospacedDigit()).foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -57,7 +57,7 @@ struct ProjectCard: View {
                 Image(systemName: runtime.status.isActive ? "stop.fill" : "play.fill")
                     .frame(width: 14)
             }
-            .help(runtime.status.isActive ? "Stop" : "Start")
+            .help(runtime.status.isActive ? "توقف" : "اجرا")
             .disabled(runtime.status == .stopping)
 
             Button {
@@ -65,7 +65,7 @@ struct ProjectCard: View {
             } label: {
                 Image(systemName: "safari")
             }
-            .help("Open in Browser")
+            .help("باز کردن در مرورگر")
             .disabled(runtime.status != .running || runtime.port == nil)
         }
         .buttonStyle(.borderless)

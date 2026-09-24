@@ -148,6 +148,6 @@ final class HostingTests: XCTestCase {
         let job = HostingJob(project: Project(url: root.appendingPathComponent("bad"), detectedType: .php, relativePath: "bad"), type: .php)
         job.start()
         try await Self.wait(job, seconds: 30)
-        XCTAssertEqual(job.phase, .failed("build.sh exited with code 3"))
+        XCTAssertEqual(job.phase, .failed("build.sh با کد 3 متوقف شد"))
     }
 }

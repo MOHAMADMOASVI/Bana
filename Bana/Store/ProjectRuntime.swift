@@ -32,8 +32,8 @@ final class ProjectRuntime: ObservableObject {
     func start(spec: LaunchSpec, in directory: URL, searchPath: [String]) {
         guard !status.isActive else { return }
         guard let executable = ExecutableLocator.find(spec.program, in: searchPath) else {
-            append("“\(spec.program)” was not found on PATH:\n  " + searchPath.joined(separator: "\n  "), .system)
-            status = .failed("\(spec.program) not found")
+            append("«\(spec.program)» پیدا نشد. این مسیرها جست‌وجو شد:\n  " + searchPath.joined(separator: "\n  "), .system)
+            status = .failed("\(spec.program) پیدا نشد")
             return
         }
 
@@ -66,12 +66,12 @@ final class ProjectRuntime: ObservableObject {
         port = spec.port
         commandLine = spec.displayCommand
         append("$ \(executable.path) \(spec.arguments.joined(separator: " "))", .system)
-        append("  in \(directory.path)", .system)
+        append("  ↳ \(directory.path)", .system)
 
         do {
             try process.run()
         } catch {
-            append("Failed to launch: \(error.localizedDescription)", .system)
+            append("اجرا نشد: \(error.localizedDescription)", .system)
             status = .failed(error.localizedDescription)
             return
         }
@@ -90,7 +90,7 @@ final class ProjectRuntime: ObservableObject {
         guard status != .stopping else { return }
         userStopped = true
         status = .stopping
-        append("Stopping…", .system)
+        append("در حال توقف…", .system)
 
         let pid = process.processIdentifier
         let tree = ProcessTree.descendants(of: pid)
@@ -102,7 +102,7 @@ final class ProjectRuntime: ObservableObject {
             ProcessTree.signal(leftovers, SIGKILL)
             if process.isRunning {
                 kill(pid, SIGKILL)
-                Task { @MainActor in self?.append("Force killed after \(Int(grace))s.", .system) }
+                Task { @MainActor in self?.append("بعد از \(Int(grace)) ثانیه به‌زور بسته شد.", .system) }
             }
         }
     }
@@ -130,7 +130,7 @@ final class ProjectRuntime: ObservableObject {
                 let listening = await Task.detached { PortFinder.isListening(port) }.value
                 if listening, self.status == .starting {
                     self.status = .running
-                    self.append("Listening on port \(port).", .system)
+                    self.append("روی پورت \(port) آماده است.", .system)
                     return
                 }
             }
@@ -141,11 +141,11 @@ final class ProjectRuntime: ObservableObject {
         readinessTask?.cancel()
         process = nil
         if userStopped || code == 0 {
-            append("Process exited (\(code)).", .system)
+            append("فرایند بسته شد (\(code)).", .system)
             status = .stopped
         } else {
-            let why = reason == .uncaughtSignal ? "killed by signal \(code)" : "exited with code \(code)"
-            append("Process \(why).", .system)
+            let why = reason == .uncaughtSignal ? "با سیگنال \(code) بسته شد" : "با کد \(code) متوقف شد"
+            append("فرایند \(why).", .system)
             status = .failed(why)
         }
         let completions = stopCompletions

@@ -9,12 +9,12 @@ struct OverviewGrid: View {
             if store.rootURL == nil {
                 welcome
             } else if store.isScanning && store.projects.isEmpty {
-                ProgressView("Scanning…")
+                ProgressView("در حال جست‌وجو…")
             } else if store.projects.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "folder.badge.questionmark").font(.system(size: 40)).foregroundStyle(.tertiary)
-                    Text("No Laravel, PHP, Python, Node.js or Docker projects found").foregroundStyle(.secondary)
-                    Button("Choose Another Folder…") { store.chooseRoot() }
+                    Text("پروژهٔ Laravel، PHP، Python، Node.js یا Docker پیدا نشد").foregroundStyle(.secondary)
+                    Button("انتخاب پوشهٔ دیگر…") { store.chooseRoot() }
                 }
             } else {
                 ScrollView {
@@ -30,7 +30,7 @@ struct OverviewGrid: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationTitle("Projects")
+        .navigationTitle("پروژه‌ها")
     }
 
     private var welcome: some View {
@@ -38,11 +38,11 @@ struct OverviewGrid: View {
             Image(systemName: "square.stack.3d.up")
                 .font(.system(size: 52, weight: .light))
                 .foregroundStyle(.tint)
-            Text("Bana").font(.title2.weight(.semibold))
-            Text("Choose the folder where you keep your projects.\nLaravel, PHP, Python, Node.js and Docker projects are detected automatically.")
+            Text("بنا").font(.title2.weight(.semibold))
+            Text("پوشه‌ای را که پروژه‌هایتان در آن است انتخاب کنید.\nپروژه‌های Laravel، PHP، Python، Node.js و Docker خودکار شناخته می‌شوند.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
-            Button("Choose Folder…") { store.chooseRoot() }
+            Button("انتخاب پوشه…") { store.chooseRoot() }
                 .controlSize(.large)
                 .keyboardShortcut(.defaultAction)
         }

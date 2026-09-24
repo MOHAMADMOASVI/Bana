@@ -17,12 +17,12 @@ struct SidebarView: View {
             }
         }
         .listStyle(.sidebar)
-        .searchable(text: $query, placement: .sidebar, prompt: "Filter")
+        .searchable(text: $query, placement: .sidebar, prompt: "جست‌وجو")
         .overlay {
             if store.rootURL == nil {
-                emptyState("No folder selected", button: "Choose Folder…")
+                emptyState("پوشه‌ای انتخاب نشده", button: "انتخاب پوشه…")
             } else if store.projects.isEmpty && !store.isScanning {
-                emptyState("No projects found", button: "Choose Another Folder…")
+                emptyState("پروژه‌ای پیدا نشد", button: "انتخاب پوشهٔ دیگر…")
             }
         }
         .navigationSplitViewColumnWidth(min: 240, ideal: 280, max: 400)
@@ -33,7 +33,7 @@ struct SidebarView: View {
         return store.projects.filter { $0.name.localizedCaseInsensitiveContains(query) || $0.relativePath.localizedCaseInsensitiveContains(query) }
     }
 
-    private func emptyState(_ title: String, button: String) -> some View {
+    private func emptyState(_ title: LocalizedStringKey, button: LocalizedStringKey) -> some View {
         VStack(spacing: 8) {
             Text(title).foregroundStyle(.secondary)
             Button(button) { store.chooseRoot() }
@@ -44,9 +44,9 @@ struct SidebarView: View {
     @ViewBuilder
     private func contextMenu(for project: Project) -> some View {
         let active = store.runtime(for: project).status.isActive
-        Button(active ? "Stop" : "Start") { store.toggle(project) }
-        Button("Open in Browser") { store.openInBrowser(project) }.disabled(!active)
+        Button(active ? "توقف" : "اجرا") { store.toggle(project) }
+        Button("باز کردن در مرورگر") { store.openInBrowser(project) }.disabled(!active)
         Divider()
-        Button("Reveal in Finder") { NSWorkspace.shared.activateFileViewerSelecting([project.url]) }
+        Button("نمایش در Finder") { NSWorkspace.shared.activateFileViewerSelecting([project.url]) }
     }
 }

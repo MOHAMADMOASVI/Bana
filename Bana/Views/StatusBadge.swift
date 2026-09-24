@@ -17,7 +17,7 @@ struct StatusBadge: View {
     }
 
     private var helpText: String {
-        if case .failed(let message) = status { return message }
+        if case .failed(let message) = status { return message.rtl }
         return status.label
     }
 }

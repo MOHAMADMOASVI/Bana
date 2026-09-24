@@ -9,14 +9,15 @@ struct BanaApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(store)
+                .persianUI()
                 .frame(minWidth: 820, minHeight: 520)
         }
         .defaultSize(width: 1100, height: 720)
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("Choose Projects Folder…") { store.chooseRoot() }
+                Button("انتخاب پوشهٔ پروژه‌ها…") { store.chooseRoot() }
                     .keyboardShortcut("o")
-                Button("Rescan Projects") { store.rescan() }
+                Button("اسکن دوبارهٔ پروژه‌ها") { store.rescan() }
                     .keyboardShortcut("r")
                     .disabled(store.rootURL == nil)
             }

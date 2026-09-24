@@ -71,42 +71,42 @@ final class HostingJob: ObservableObject {
     /// What the zip will contain, in plain words.
     var layoutDescription: [String] {
         if usesSplitLayout {
-            return ["\(appFolderName)/ — the application, outside the web root (vendor installed with --no-dev)",
-                    "public_html/ — contents of public/, index.php repointed to ../\(appFolderName)/",
-                    "Extract in the domain folder (e.g. domains/example.com/) so public_html/ lands on the existing one."]
+            return ["\(lrm("\(appFolderName)/")) — خود برنامه، بیرون از دسترس وب (vendor با \(lrm("--no-dev")) نصب می‌شود)",
+                    "\(lrm("public_html/")) — محتوای \(lrm("public/"))؛ index.php به \(lrm("../\(appFolderName)/")) اشاره می‌کند",
+                    "در پوشهٔ دامنه (مثلاً \(lrm("domains/example.com/"))) Extract کنید تا \(lrm("public_html/")) روی همان پوشهٔ موجود بنشیند."]
         }
         switch type {
         case .laravel, .php:
-            return ["public_html/ — the whole project (it is its own web root)",
-                    "Extract in the domain folder, or upload the contents of public_html/."]
+            return ["\(lrm("public_html/")) — کل پروژه (خودش ریشهٔ وب است)",
+                    "در پوشهٔ دامنه Extract کنید، یا محتوای \(lrm("public_html/")) را آپلود کنید."]
         case .node:
-            return ["public_html/ — static build output (dist/, build/ or out/) when the project produces one",
-                    "Otherwise \(appFolderName)/ — the project without node_modules, for the host's “Setup Node.js App”."]
+            return ["\(lrm("public_html/")) — خروجی استاتیک ساخت (\(lrm("dist/"))، \(lrm("build/")) یا \(lrm("out/"))) اگر پروژه داشته باشد",
+                    "وگرنه \(lrm("\(appFolderName)/")) — پروژه بدون node_modules، برای «Setup Node.js App» هاست."]
         case .python:
-            return ["\(appFolderName)/ — the project without virtualenvs and caches, for the host's “Setup Python App”."]
+            return ["\(lrm("\(appFolderName)/")) — پروژه بدون virtualenv و کش، برای «Setup Python App» هاست."]
         case .docker:
-            return ["\(appFolderName)/ — the project without .git, for a server that runs docker compose."]
+            return ["\(lrm("\(appFolderName)/")) — پروژه بدون \(lrm(".git"))، برای سروری که docker compose اجرا می‌کند."]
         }
     }
 
     /// Things worth knowing before uploading.
     var checks: [String] {
-        var notes = ["Your local .env is never included."]
+        var notes = ["فایل \(lrm(".env")) لوکال هیچ‌وقت داخل بسته نمی‌رود."]
         let dir = project.url
         if let data = try? Data(contentsOf: dir.appendingPathComponent("composer.json")),
            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-            if let php = (json["require"] as? [String: Any])?["php"] as? String { notes.append("Requires PHP \(php) — pick a matching version in the hosting panel.") }
+            if let php = (json["require"] as? [String: Any])?["php"] as? String { notes.append("به PHP \(php) نیاز دارد — همین نسخه را در پنل هاست انتخاب کنید.") }
             if let platform = ((json["config"] as? [String: Any])?["platform"] as? [String: Any])?["php"] as? String {
-                notes.append("composer.json pins platform PHP \(platform); vendor is resolved for that version.")
+                notes.append("composer.json نسخهٔ PHP را روی \(platform) قفل کرده؛ vendor برای همان نسخه ساخته می‌شود.")
             }
         }
         if type == .laravel {
-            notes.append("A production .env is generated from .env.example with a fresh APP_KEY and APP_DEBUG=false — fill in the database credentials on the host.")
-            notes.append("storage/app (uploads, local backups) is not included — the host starts empty. Upload it separately if you are moving data.")
-            notes.append("No SSH: run migrations from phpMyAdmin (import) or a one-off Cron job.")
+            notes.append("یک \(lrm(".env")) مخصوص هاست از روی \(lrm(".env.example")) ساخته می‌شود، با APP_KEY تازه و APP_DEBUG=false — مشخصات دیتابیس را روی هاست وارد کنید.")
+            notes.append("storage/app (فایل‌های آپلودی و بکاپ‌های لوکال) داخل بسته نیست و هاست خالی شروع می‌کند. اگر داده منتقل می‌کنید، جدا آپلودش کنید.")
+            notes.append("بدون SSH: جدول‌ها را با import در phpMyAdmin یا یک Cron یک‌باره بسازید.")
         }
         if type == .php && !usesSplitLayout {
-            notes.append("Everything in the project folder becomes publicly reachable — keep secrets outside it.")
+            notes.append("همهٔ فایل‌های پوشهٔ پروژه از طریق وب در دسترس می‌شوند — رمزها را بیرون از آن نگه دارید.")
         }
         return notes
     }
@@ -124,7 +124,7 @@ final class HostingJob: ObservableObject {
                 if let result { append("✓ \(result.path)", .system) }
             } catch {
                 phase = cancelled ? .ready : .failed(error.localizedDescription)
-                append(cancelled ? "Cancelled." : "✗ \(error.localizedDescription)", .system)
+                append(cancelled ? "لغو شد." : "✗ \(error.localizedDescription)", .system)
             }
         }
     }
@@ -137,7 +137,7 @@ final class HostingJob: ObservableObject {
     private func runProjectScript() async throws -> URL? {
         guard let script = projectScript else { return nil }
         let started = Date()
-        phase = .running("Running \(relative(script))")
+        phase = .running("اجرای \(relative(script))")
         if FileManager.default.isExecutableFile(atPath: script.path) {
             try await exec(script.path, [], in: project.url)
         } else {
@@ -154,7 +154,7 @@ final class HostingJob: ObservableObject {
         let app = appFolderName
 
         if hasFrontendBuild && rebuildFrontend && type != .python && type != .docker {
-            phase = .running("Building frontend assets")
+            phase = .running("ساخت فایل‌های فرانت‌اند")
             if !fm.fileExists(atPath: src.appendingPathComponent("node_modules").path) {
                 let lock = fm.fileExists(atPath: src.appendingPathComponent("package-lock.json").path)
                 try await exec("npm", lock ? ["ci"] : ["install"], in: src)
@@ -163,7 +163,7 @@ final class HostingJob: ObservableObject {
         }
         try checkCancelled()
 
-        phase = .running("Copying files")
+        phase = .running("کپی فایل‌ها")
         let reinstallVendor = fm.fileExists(atPath: src.appendingPathComponent("composer.json").path)
         var target: URL
         switch type {
@@ -174,7 +174,7 @@ final class HostingJob: ObservableObject {
                 target = stage.appendingPathComponent("public_html")
                 try fm.createDirectory(at: stage, withIntermediateDirectories: true)
                 try fm.copyItem(at: out, to: target)
-                append("Static site from \(out.lastPathComponent)/", .system)
+                append("سایت استاتیک از \(lrm(out.lastPathComponent + "/"))", .system)
                 return try await finish(stage: stage)
             }
             target = stage.appendingPathComponent(app)
@@ -183,8 +183,8 @@ final class HostingJob: ObservableObject {
         }
         let excluded = Set(flagged.filter(\.excluded).map(\.path))
         let copied = try HostingCopier.copy(from: src, to: target, type: type, skipVendor: reinstallVendor, excluding: excluded)
-        append("Copied \(copied) files (skipped .git, node_modules, local .env, logs, caches).", .system)
-        for path in excluded.sorted() { append("Left out: \(path)", .system) }
+        append("\(copied) فایل کپی شد (بدون \(lrm(".git"))، node_modules، \(lrm(".env")) لوکال، لاگ‌ها و کش‌ها).", .system)
+        for path in excluded.sorted() { append("کنار گذاشته شد: \(path)", .system) }
         try checkCancelled()
 
         if type == .laravel || (type == .php && usesSplitLayout) {
@@ -192,19 +192,19 @@ final class HostingJob: ObservableObject {
         }
 
         if reinstallVendor {
-            phase = .running("Installing PHP dependencies (--no-dev)")
+            phase = .running("نصب وابستگی‌های PHP (\(lrm("--no-dev")))")
             try await exec("composer", ["install", "--no-dev", "--optimize-autoloader", "--no-interaction", "--prefer-dist", "--no-progress"], in: target)
         }
         try checkCancelled()
 
         if usesSplitLayout {
-            phase = .running("Arranging public_html")
+            phase = .running("چیدن public_html")
             let publicHTML = stage.appendingPathComponent("public_html")
             try fm.moveItem(at: target.appendingPathComponent("public"), to: publicHTML)
             let index = publicHTML.appendingPathComponent("index.php")
             if let php = try? String(contentsOf: index, encoding: .utf8) {
                 try HostingCopier.repointIndex(php, appFolder: app, laravel: type == .laravel).write(to: index, atomically: true, encoding: .utf8)
-                append("public_html/index.php now loads ../\(app)/", .system)
+                append("\(lrm("public_html/index.php")) حالا برنامه را از \(lrm("../\(app)/")) بارگذاری می‌کند", .system)
             }
             // storage:link needs a shell; ship a real folder the host can write to instead.
             let link = publicHTML.appendingPathComponent("storage")
@@ -216,10 +216,10 @@ final class HostingJob: ObservableObject {
         if type == .laravel {
             let env = HostingCopier.productionEnv(from: src, appURL: HostingCopier.normalizedURL(siteAddress))
             try env.write(to: target.appendingPathComponent(".env"), atomically: true, encoding: .utf8)
-            append("Generated \(app)/.env (APP_ENV=production, APP_DEBUG=false, new APP_KEY).", .system)
+            append("\(lrm("\(app)/.env")) ساخته شد (APP_ENV=production، APP_DEBUG=false، APP_KEY تازه).", .system)
             if let url = env.components(separatedBy: "\n").first(where: { $0.hasPrefix("APP_URL=") }),
                HostingCopier.normalizedURL(String(url.dropFirst(8))) == nil {
-                append("⚠︎ \(url) is not a valid address — set APP_URL in .env on the host.", .system)
+                append("⚠︎ \(url) آدرس معتبری نیست — APP_URL را در \(lrm(".env")) روی هاست درست کنید.", .system)
             }
         }
 
@@ -231,14 +231,14 @@ final class HostingJob: ObservableObject {
         try HostingCopier.readme(project: project.name, layout: layoutDescription, checks: checks)
             .write(to: stage.appendingPathComponent("README-HOSTING.txt"), atomically: true, encoding: .utf8)
 
-        phase = .running("Compressing")
+        phase = .running("فشرده‌سازی")
         try fm.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
         let stamp = Self.stampFormatter.string(from: Date())
         let zip = outputDirectory.appendingPathComponent("\(packageName)-hosting-\(stamp).zip")
         try? fm.removeItem(at: zip)
         try await exec("/usr/bin/zip", ["-qry", "-X", zip.path, "."], in: stage, quiet: true)
         let size = (try? zip.resourceValues(forKeys: [.fileSizeKey]).fileSize).map { ByteCountFormatter.string(fromByteCount: Int64($0), countStyle: .file) } ?? "?"
-        append("Zip: \(size)", .system)
+        append("حجم zip: \(size)", .system)
         return zip
     }
 
@@ -253,7 +253,7 @@ final class HostingJob: ObservableObject {
     }
 
     private func checkCancelled() throws {
-        if cancelled { throw HostingError("Cancelled") }
+        if cancelled { throw HostingError("لغو شد") }
     }
 
     private func relative(_ url: URL) -> String {
@@ -264,7 +264,7 @@ final class HostingJob: ObservableObject {
     private func exec(_ program: String, _ args: [String], in dir: URL, quiet: Bool = false) async throws {
         let path = ExecutableLocator.searchPath(for: project.url)
         guard let exe = ExecutableLocator.find(program, in: path) else {
-            throw HostingError("\(program) not found. Install it (e.g. brew install \(program)) and try again.")
+            throw HostingError("\(program) پیدا نشد. نصبش کنید (مثلاً brew install \(program)) و دوباره امتحان کنید.")
         }
         append("$ \(([exe.lastPathComponent] + args).joined(separator: " "))", .system)
         let process = Process()
@@ -303,7 +303,7 @@ final class HostingJob: ObservableObject {
             group.notify(queue: .main) { cont.resume(returning: process.terminationStatus) }
         }
         current = nil
-        if status != 0 { throw HostingError("\(exe.lastPathComponent) exited with code \(status)") }
+        if status != 0 { throw HostingError("\(exe.lastPathComponent) با کد \(status) متوقف شد") }
     }
 
     private func append(_ text: String, _ stream: LogLine.Stream) { append([text], stream) }
@@ -439,15 +439,15 @@ enum HostingCopier {
                 let lower = name.lowercased()
                 if isDir.boolValue {
                     if lower == "backup" || lower == "backups" || lower == "dumps" {
-                        result.append(FlaggedFile(path: childRel, reason: "Backup folder", excluded: true))
+                        result.append(FlaggedFile(path: childRel, reason: "پوشهٔ بکاپ", excluded: true))
                     } else {
                         walk(child, childRel)
                     }
                 } else if dumpExtensions.contains((lower as NSString).pathExtension) || lower.hasSuffix("~") {
-                    result.append(FlaggedFile(path: childRel, reason: "Backup, archive or database dump", excluded: true))
+                    result.append(FlaggedFile(path: childRel, reason: "بکاپ، فایل فشرده یا خروجی دیتابیس", excluded: true))
                 } else if !lower.contains("example") && !lower.contains("sample"),
                           lower.contains("secret") || lower.contains("credential") || ["pem", "key", "p12"].contains((lower as NSString).pathExtension) {
-                    result.append(FlaggedFile(path: childRel, reason: "May contain passwords — make sure it's the host version", excluded: false))
+                    result.append(FlaggedFile(path: childRel, reason: "ممکن است رمز داشته باشد — مطمئن شوید نسخهٔ مخصوص هاست است", excluded: false))
                 }
             }
         }
@@ -517,15 +517,15 @@ enum HostingCopier {
 
     static func readme(project: String, layout: [String], checks: [String]) -> String {
         """
-        \(project) — hosting package (made by Bana)
+        \(project) — بستهٔ آمادهٔ هاست (ساخته‌شده با بنا)
 
-        Layout
+        چیدمان
         \(layout.map { "  • " + $0 }.joined(separator: "\n"))
 
-        Before going live
+        پیش از راه‌اندازی
         \(checks.map { "  • " + $0 }.joined(separator: "\n"))
 
-        راهنمای کوتاه
+        مراحل
           ۱. فایل zip را در File Manager هاست، در پوشهٔ دامنه آپلود و Extract کنید.
           ۲. اگر پوشهٔ برنامه جدا از public_html است، آن را بیرون از public_html نگه دارید.
           ۳. فایل .env را باز کنید و مشخصات دیتابیس را وارد کنید.

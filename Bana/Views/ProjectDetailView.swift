@@ -40,48 +40,49 @@ struct ProjectDetailView: View {
                     StatusBadge(status: runtime.status)
                 }
                 Text(runtime.commandLine.isEmpty ? project.url.path : runtime.commandLine)
+                    .ltr()
                     .font(.callout.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1).truncationMode(.middle)
                     .textSelection(.enabled)
                 if case .failed(let message) = runtime.status {
-                    Text(message).font(.callout).foregroundStyle(.red).lineLimit(2)
+                    Text(message.rtl).font(.callout).foregroundStyle(.red).lineLimit(2)
                 }
             }
             Spacer()
             Button {
                 withAnimation(.easeInOut(duration: 0.2)) { showSettings.toggle() }
             } label: {
-                Label("Settings", systemImage: "slider.horizontal.3")
+                Label("تنظیمات", systemImage: "slider.horizontal.3").labelStyle(.iconOnly)
             }
-            .help("Port and command")
+            .help("تنظیمات: پورت و دستور اجرا")
             Button {
                 NSWorkspace.shared.activateFileViewerSelecting([project.url])
             } label: {
-                Label("Finder", systemImage: "folder")
+                Label("Finder", systemImage: "folder").labelStyle(.iconOnly)
             }
-            .help("Reveal in Finder")
+            .help("نمایش در Finder")
             Button {
                 hostingJob = HostingJob(project: project, type: type)
             } label: {
-                Label("Hosting", systemImage: "shippingbox.and.arrow.backward")
+                Label("هاست", systemImage: "shippingbox.and.arrow.backward")
             }
-            .help("Prepare an upload-ready zip for shared hosting")
+            .help("ساخت فایل zip آمادهٔ آپلود روی هاست")
             Button {
                 store.openInBrowser(project)
             } label: {
-                Label("Open in Browser", systemImage: "safari")
+                Label("باز کردن در مرورگر", systemImage: "safari")
             }
             .disabled(runtime.status != .running || runtime.port == nil)
             if runtime.status.isActive {
                 Button(role: .destructive) { store.stop(project) } label: {
-                    Label("Stop", systemImage: "stop.fill").frame(minWidth: 56)
+                    Label("توقف", systemImage: "stop.fill").frame(minWidth: 56)
                 }
                 .disabled(runtime.status == .stopping)
                 .keyboardShortcut(".", modifiers: .command)
             } else {
                 Button { store.start(project) } label: {
-                    Label("Start", systemImage: "play.fill").frame(minWidth: 56)
+                    Label("اجرا", systemImage: "play.fill").frame(minWidth: 56)
                 }
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.return, modifiers: .command)
@@ -99,13 +100,13 @@ struct ProjectDetailView: View {
                 let lan = store.url(for: project, lan: true)
                 HStack(alignment: .top, spacing: 16) {
                     VStack(alignment: .leading, spacing: 10) {
-                        linkRow("This Mac", local)
+                        linkRow("همین مک", local)
                         if let lan, store.lanIP != nil {
-                            linkRow("Local network", lan)
-                            Text("Scan the code from a phone on the same Wi‑Fi.")
+                            linkRow("شبکهٔ محلی", lan)
+                            Text("با گوشیِ وصل به همین Wi‑Fi کد را اسکن کنید.")
                                 .font(.caption).foregroundStyle(.secondary)
                         } else {
-                            Label("No network connection — only this Mac can reach the server.", systemImage: "wifi.slash")
+                            Label("به شبکه وصل نیستید — فقط همین مک به سرور دسترسی دارد.", systemImage: "wifi.slash")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                     }
@@ -122,26 +123,27 @@ struct ProjectDetailView: View {
                 }
                 .padding(6)
             } else if runtime.status.isActive {
-                Text("Running without a published port.").foregroundStyle(.secondary).padding(6)
+                Text("بدون پورت منتشرشده در حال اجراست.").foregroundStyle(.secondary).padding(6)
             } else {
                 HStack {
                     Image(systemName: "network").foregroundStyle(.tertiary)
-                    Text("Start the server to get a link and QR code.").foregroundStyle(.secondary)
+                    Text("سرور را اجرا کنید تا لینک و کد QR ساخته شود.").foregroundStyle(.secondary)
                     Spacer()
                 }
                 .padding(6)
             }
         } label: {
-            Label("Network", systemImage: "network")
+            Label("شبکه", systemImage: "network")
         }
         .frame(maxWidth: .infinity)
     }
 
-    private func linkRow(_ title: String, _ url: URL) -> some View {
+    private func linkRow(_ title: LocalizedStringKey, _ url: URL) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title).font(.caption).foregroundStyle(.secondary)
             HStack(spacing: 6) {
                 Link(url.absoluteString, destination: url)
+                    .ltr()
                     .font(.body.monospaced())
                     .textSelection(.enabled)
                 Button {
@@ -151,7 +153,7 @@ struct ProjectDetailView: View {
                     Image(systemName: "doc.on.doc")
                 }
                 .buttonStyle(.borderless)
-                .help("Copy link")
+                .help("کپی لینک")
             }
         }
     }
@@ -161,21 +163,23 @@ struct ProjectDetailView: View {
     private func settingsBox(_ type: ProjectType) -> some View {
         GroupBox {
             Form {
-                Picker("Type", selection: Binding(
+                Picker("نوع", selection: Binding(
                     get: { store.type(of: project) },
                     set: { new in store.updateSettings(for: project) { $0.typeOverride = new == project.detectedType ? nil : new } }
                 )) {
                     ForEach(ProjectType.allCases) { Label($0.displayName, systemImage: $0.symbol).tag($0) }
                 }
-                TextField("Port", text: $portText, prompt: Text("Auto (from \(String(type.defaultPort)))"))
+                TextField("پورت", text: $portText, prompt: Text("خودکار (از \(String(type.defaultPort)))"))
+                    .ltr()
                     .onSubmit(savePort)
-                TextField("Command", text: $commandText,
+                TextField("دستور", text: $commandText,
                           prompt: Text(CommandBuilder.spec(for: project, type: type, port: 0, customCommand: nil)
                             .displayCommand.replacingOccurrences(of: ":0", with: ":{port}")
                             .replacingOccurrences(of: " 0", with: " {port}")))
                     .font(.body.monospaced())
+                    .ltr()
                     .onSubmit(saveCommand)
-                Text("`{port}` is replaced with the chosen port. Runs directly, without a shell. Applies on next start.")
+                Text("`\(lrm("{port}"))` با پورت انتخاب‌شده جایگزین می‌شود. دستور مستقیم و بدون shell اجرا می‌شود و از اجرای بعدی اعمال می‌شود.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             .formStyle(.columns)
@@ -183,7 +187,7 @@ struct ProjectDetailView: View {
             .onChange(of: portText) { _ in savePort() }
             .onChange(of: commandText) { _ in saveCommand() }
         } label: {
-            Label("Settings", systemImage: "slider.horizontal.3")
+            Label("تنظیمات", systemImage: "slider.horizontal.3")
         }
         .frame(width: 380)
         .transition(.move(edge: .trailing).combined(with: .opacity))

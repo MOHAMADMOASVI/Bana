@@ -32,8 +32,8 @@ final class ProjectStore: ObservableObject {
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
         panel.canCreateDirectories = false
-        panel.prompt = "Choose"
-        panel.message = "Choose the folder that contains your projects"
+        panel.prompt = "انتخاب"
+        panel.message = "پوشه‌ای را که پروژه‌هایتان در آن است انتخاب کنید"
         panel.directoryURL = rootURL ?? URL(fileURLWithPath: ExecutableLocator.realHome + "/Projects")
         guard panel.runModal() == .OK, let url = panel.url else { return }
 
@@ -110,14 +110,14 @@ final class ProjectStore: ObservableObject {
         let port: Int
         if let fixed = s.port {
             guard PortFinder.isFree(fixed), !reserved.contains(fixed) else {
-                rt.fail("Port \(fixed) is already in use. Change it in Settings or clear it to pick one automatically.")
+                rt.fail("پورت \(fixed) در حال استفاده است. در تنظیمات عوضش کنید یا خالی بگذارید تا خودکار انتخاب شود.")
                 return
             }
             port = fixed
         } else if let free = PortFinder.findFree(startingAt: type.defaultPort, excluding: reserved) {
             port = free
         } else {
-            rt.fail("No free port found near \(type.defaultPort).")
+            rt.fail("نزدیک پورت \(type.defaultPort) پورت آزادی پیدا نشد.")
             return
         }
 
