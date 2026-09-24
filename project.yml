@@ -1,0 +1,48 @@
+name: ProjectLauncher
+options:
+  bundleIdPrefix: com.mosavi
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  ProjectLauncher:
+    type: application
+    platform: macOS
+    sources: [ProjectLauncher]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mosavi.ProjectLauncher
+        CODE_SIGN_ENTITLEMENTS: ProjectLauncher/ProjectLauncher.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Project Launcher
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  ProjectLauncherTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [ProjectLauncherTests]
+    dependencies:
+      - target: ProjectLauncher
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_IDENTITY: "-"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ProjectLauncher.app/Contents/MacOS/ProjectLauncher"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  ProjectLauncher:
+    build:
+      targets:
+        ProjectLauncher: all
+    test:
+      targets: [ProjectLauncherTests]
