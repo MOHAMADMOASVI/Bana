@@ -60,10 +60,13 @@ struct OverviewGrid: View {
                     "Choose the folder where you keep your projects.\nLaravel, PHP, Python, Node.js and Docker projects are detected automatically."))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
-            Button(tr("انتخاب پوشه…", "Choose Folder…")) { store.chooseRoot() }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .keyboardShortcut(.defaultAction)
+            HStack(spacing: 10) {
+                Button(tr("انتخاب پوشه…", "Choose Folder…")) { store.chooseRoot() }
+                    .buttonStyle(.borderedProminent)
+                    .keyboardShortcut(.defaultAction)
+                SettingsButton()
+            }
+            .controlSize(.large)
         }
         .padding(40)
     }

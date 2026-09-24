@@ -22,6 +22,7 @@ struct ContentView: View {
                     .disabled(store.rootURL == nil)
                 Button { store.chooseRoot() } label: { Label(tr("انتخاب پوشه", "Choose Folder"), systemImage: "folder") }
                     .help(tr("انتخاب پوشهٔ پروژه‌ها (⌘O)", "Choose projects folder (⌘O)"))
+                SettingsButton()
             }
         }
     }

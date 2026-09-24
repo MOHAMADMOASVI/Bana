@@ -31,6 +31,7 @@
 		811F4C808F4943D0CD444C85 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5AFB39564BBA29C2E57F04DE /* InfoPlist.strings */; };
 		8249CBFD72E538579AE8FAB6 /* HostingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53940CD8852F148ADA132CC0 /* HostingSheet.swift */; };
 		8C4E2F111F3248833EDABD72 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1DA456C0F467B6BB8C2AF7 /* ContentView.swift */; };
+		8D80FFE8AF607AA327783EF7 /* SettingsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619ADB51F85B7F131AF064D8 /* SettingsButton.swift */; };
 		944D8A1A6514A7486F517D7F /* ProjectStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06BC4872FBB5472725BFB4FB /* ProjectStore.swift */; };
 		9D0B6CA038BDAEAEB6595427 /* RealProjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509B500719DDB95475B1FD03 /* RealProjectsTests.swift */; };
 		A3915CEF1FDECAE116C9F2B1 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D8E3B7CBE2EA94AE09547C /* SidebarView.swift */; };
@@ -71,6 +72,7 @@
 		5C73815D217AF59AA2DC04D2 /* ProjectSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSettings.swift; sourceTree = "<group>"; };
 		5DD53E760E733D4203E82E31 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		5EA15DDA5424268783509259 /* ProcessTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessTree.swift; sourceTree = "<group>"; };
+		619ADB51F85B7F131AF064D8 /* SettingsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButton.swift; sourceTree = "<group>"; };
 		63BDC2B56E8286819C6CA29D /* RunStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunStatus.swift; sourceTree = "<group>"; };
 		63D8E3B7CBE2EA94AE09547C /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		66B755F906068DC023BE0270 /* ProjectType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectType.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 				7A10BF82FE0D84DB1538BC80 /* OverviewGrid.swift */,
 				BE481F6B6596755F2843AB0E /* ProjectCard.swift */,
 				85763E4AC6832910D7F00A2F /* ProjectDetailView.swift */,
+				619ADB51F85B7F131AF064D8 /* SettingsButton.swift */,
 				31A657CCB3EBB8A362AAC138 /* SettingsView.swift */,
 				63D8E3B7CBE2EA94AE09547C /* SidebarView.swift */,
 				6D60CFA66B670FF1677CBAFA /* StatusBadge.swift */,
@@ -330,6 +333,7 @@
 				F850BCFB660A852086C62632 /* ProjectType.swift in Sources */,
 				2D2AD585432CE718154981A2 /* QRCodeGenerator.swift in Sources */,
 				76A9DB728F3C0BC3682AF26F /* RunStatus.swift in Sources */,
+				8D80FFE8AF607AA327783EF7 /* SettingsButton.swift in Sources */,
 				C833E4923BE7AFCB5CBB35A9 /* SettingsStore.swift in Sources */,
 				D248FCE1C40C7D2DA2F6FA76 /* SettingsView.swift in Sources */,
 				A3915CEF1FDECAE116C9F2B1 /* SidebarView.swift in Sources */,
