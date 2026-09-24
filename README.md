@@ -1,31 +1,40 @@
-# Project Launcher
+# Bana
 
-A lightweight native macOS app (SwiftUI, macOS 13+) that finds local projects in a folder and runs their dev servers, with live logs, LAN links and QR codes.
+A lightweight native macOS app (SwiftUI, macOS 13+) that finds local projects in a folder, runs their dev servers with live logs, LAN links and QR codes, and **prepares upload-ready packages for shared hosting**.
+
+## Run
 
 | Detected by | Type | Default command |
 |---|---|---|
 | `artisan` | Laravel | `php artisan serve --host=0.0.0.0 --port={port} --no-reload --tries=1` |
 | `composer.json` / `index.php` / `public/index.php` | PHP | `php -S 0.0.0.0:{port}` (+ `-t public` when `public/index.php` exists) |
-| `requirements.txt` / `main.py` | Python | `uvicorn main:app --host 0.0.0.0 --port {port}` (uses `.venv/bin` / `venv/bin` first) |
+| `requirements.txt` / `main.py` | Python | FastAPI → `uvicorn`, Flask → `flask run`, otherwise `python3 -u main.py` (`.venv/bin` first) |
 | `package.json` | Node.js | `npm run dev` (+ host/port flags for Vite, Astro, Nuxt, Next) |
 | `docker-compose.yml` / `compose.yaml` | Docker | `docker compose up` (URL from the first published port) |
 
-Scanning goes 5 levels deep, skips `node_modules`, `vendor` and similar, and stops at the first folder that is a project. You can override the port, the command (`{port}` placeholder, no shell) and the type for each project. Settings are saved in `~/Library/Containers/com.mosavi.ProjectLauncher/Data/Library/Application Support/ProjectLauncher/settings.json`.
+Scanning goes 5 levels deep, skips `node_modules`, `vendor` and similar, and stops at the first folder that is a project. You can override the port, command (`{port}` placeholder, no shell) and type per project. Settings are stored in `~/Library/Application Support/Bana/settings.json`. Quitting stops every server's whole process tree.
+
+## Prepare for Hosting
+
+The **Hosting** button builds `<name>-hosting-<date>.zip` (on the Desktop by default) for cPanel/DirectAdmin hosts with no SSH:
+
+* **Laravel / PHP with `public/`**: `<app>/` sits outside the web root with `composer install --no-dev -o`, and `public_html/` gets `public/` with `index.php` repointed to `../<app>/` and `usePublicPath`. Laravel also gets a generated `.env` (production, debug off, fresh `APP_KEY`, `APP_URL` from “Site address”). `storage/app`, logs, caches, tests and the local `.env` are left out.
+* **Plain PHP**: the project goes into `public_html/`.
+* **Node**: the static build output (`dist/`, `build/` or `out/`) goes into `public_html/`, or the whole project if there is none.
+* **Python / Docker**: the project without venvs, caches or `.git`.
+* **Review files**: backups, archives, `.sql`/`.bak` dumps and `backups/` folders are left out by default, because in a web root they are plain downloads. Secret-looking files are flagged for you to decide.
+* **Project script**: if the project has `deploy/build.sh` or `deploy/<target>/build.sh`, it can run that instead, and Bana finds the zip it produces.
 
 ## Build
 
 ```bash
-xcodegen generate            # only after editing project.yml
-open ProjectLauncher.xcodeproj
+xcodegen generate                 # after editing project.yml
+open Bana.xcodeproj
+Scripts/make-dmg.sh               # Release build → dist/Bana-<version>.dmg
 ```
 
-Command line: `xcodebuild -scheme ProjectLauncher -derivedDataPath build test`.
-The icon comes from `swift Scripts/make-icon.swift ProjectLauncher/Resources/Assets.xcassets/AppIcon.appiconset`.
+Tests: `xcodebuild -scheme Bana -derivedDataPath build test`. Opt-in run against real projects (starts every server and builds every hosting package): `TEST_RUNNER_LAUNCHER_REAL_ROOT=~/Projects xcodebuild … test -only-testing:BanaTests/RealProjectsTests`.
 
-## Sandbox
+Icon: `swift Scripts/make-icon.swift Bana/Resources/Assets.xcassets/AppIcon.appiconset Scripts/logo_bana.png`.
 
-Off (`ProjectLauncher.entitlements`): servers need the whole home folder (`~/.nvm`, `~/.pyenv`, `~/.composer`, `/tmp`). The code still works sandboxed — it then points `TMPDIR` and PHP's opcache lock into the container — if you turn it back on with `network.server`, `network.client`, `files.user-selected.read-write` and `files.bookmarks.app-scope`.
-
-Quitting the app sends SIGTERM to every running server's whole process tree (SIGKILL after a grace period; Docker gets longer).
-
-`TEST_RUNNER_LAUNCHER_REAL_ROOT=~/Projects xcodebuild … test -only-testing:ProjectLauncherTests/RealProjectsTests` starts every detected project for real and writes a report to `$TMPDIR/launcher-report.txt`.
+App Sandbox is off (`Bana.entitlements`): servers need the whole home folder (`~/.nvm`, `~/.pyenv`, `~/.composer`, `/tmp`).

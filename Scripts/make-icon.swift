@@ -1,9 +1,11 @@
 #!/usr/bin/env swift
-// Renders the AppIcon set: graphite squircle with a green terminal prompt.
-// Usage: swift Scripts/make-icon.swift ProjectLauncher/Resources/Assets.xcassets/AppIcon.appiconset
+// Renders the AppIcon set: graphite squircle with a logo (or a green terminal prompt when none is given).
+// Usage: swift Scripts/make-icon.swift <AppIcon.appiconset> [logo.png]
 import AppKit
 
-let outDir = URL(fileURLWithPath: CommandLine.arguments.dropFirst().first ?? ".")
+let args = Array(CommandLine.arguments.dropFirst())
+let outDir = URL(fileURLWithPath: args.first ?? ".")
+let logo: NSImage? = args.count > 1 ? NSImage(contentsOfFile: args[1]) : nil
 
 func render(_ px: Int) -> Data {
     let s = CGFloat(px)
@@ -36,20 +38,28 @@ func render(_ px: Int) -> Data {
     ctx.addPath(path); ctx.strokePath()
     ctx.restoreGState()
 
-    // Prompt: chevron + underscore, drawn as strokes so it stays crisp at 16px.
-    let green = NSColor(red: 0.20, green: 0.84, blue: 0.42, alpha: 1).cgColor
-    ctx.setStrokeColor(green)
-    ctx.setLineCap(.round); ctx.setLineJoin(.round)
-    ctx.setLineWidth(s * 0.075)
-    let cx = body.minX + body.width * 0.30, cy = body.midY + body.height * 0.02, h = body.height * 0.17
-    ctx.move(to: CGPoint(x: cx, y: cy + h))
-    ctx.addLine(to: CGPoint(x: cx + h * 1.05, y: cy))
-    ctx.addLine(to: CGPoint(x: cx, y: cy - h))
-    ctx.strokePath()
-    ctx.setStrokeColor(NSColor.white.withAlphaComponent(0.85).cgColor)
-    ctx.move(to: CGPoint(x: cx + h * 1.55, y: cy - h))
-    ctx.addLine(to: CGPoint(x: cx + h * 2.65, y: cy - h))
-    ctx.strokePath()
+    if let logo, let cg = logo.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+        // Fit the logo into 64% of the body height, centred, keeping its aspect ratio.
+        let h = body.height * 0.64
+        let w = h * CGFloat(cg.width) / CGFloat(cg.height)
+        ctx.interpolationQuality = .high
+        ctx.draw(cg, in: CGRect(x: body.midX - w / 2, y: body.midY - h / 2, width: w, height: h))
+    } else {
+        // Prompt: chevron + underscore, drawn as strokes so it stays crisp at 16px.
+        let green = NSColor(red: 0.20, green: 0.84, blue: 0.42, alpha: 1).cgColor
+        ctx.setStrokeColor(green)
+        ctx.setLineCap(.round); ctx.setLineJoin(.round)
+        ctx.setLineWidth(s * 0.075)
+        let cx = body.minX + body.width * 0.30, cy = body.midY + body.height * 0.02, h = body.height * 0.17
+        ctx.move(to: CGPoint(x: cx, y: cy + h))
+        ctx.addLine(to: CGPoint(x: cx + h * 1.05, y: cy))
+        ctx.addLine(to: CGPoint(x: cx, y: cy - h))
+        ctx.strokePath()
+        ctx.setStrokeColor(NSColor.white.withAlphaComponent(0.85).cgColor)
+        ctx.move(to: CGPoint(x: cx + h * 1.55, y: cy - h))
+        ctx.addLine(to: CGPoint(x: cx + h * 2.65, y: cy - h))
+        ctx.strokePath()
+    }
 
     NSGraphicsContext.restoreGraphicsState()
     return rep.representation(using: .png, properties: [:])!
