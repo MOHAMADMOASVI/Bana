@@ -5,6 +5,15 @@ struct LogLine: Identifiable {
     let id: Int
     let text: String
     let stream: Stream
+    /// Persian/Arabic script breaks apart in a monospaced font; such lines use the proportional one.
+    let hasRTLScript: Bool
+
+    init(id: Int, text: String, stream: Stream) {
+        self.id = id
+        self.text = text
+        self.stream = stream
+        hasRTLScript = text.unicodeScalars.contains { (0x0600...0x06FF).contains($0.value) }
+    }
 
     var looksLikeError: Bool {
         text.range(of: #"\b(error|exception|fatal|traceback|failed)\b"#, options: [.regularExpression, .caseInsensitive]) != nil
@@ -32,8 +41,8 @@ final class ProjectRuntime: ObservableObject {
     func start(spec: LaunchSpec, in directory: URL, searchPath: [String]) {
         guard !status.isActive else { return }
         guard let executable = ExecutableLocator.find(spec.program, in: searchPath) else {
-            append("«\(spec.program)» پیدا نشد. این مسیرها جست‌وجو شد:\n  " + searchPath.joined(separator: "\n  "), .system)
-            status = .failed("\(spec.program) پیدا نشد")
+            append(tr("«\(spec.program)» پیدا نشد. این مسیرها جست‌وجو شد:\n  ", "“\(spec.program)” was not found on PATH:\n  ") + searchPath.joined(separator: "\n  "), .system)
+            status = .failed(tr("\(spec.program) پیدا نشد", "\(spec.program) not found"))
             return
         }
 
@@ -71,7 +80,7 @@ final class ProjectRuntime: ObservableObject {
         do {
             try process.run()
         } catch {
-            append("اجرا نشد: \(error.localizedDescription)", .system)
+            append(tr("اجرا نشد: ", "Failed to launch: ") + error.localizedDescription, .system)
             status = .failed(error.localizedDescription)
             return
         }
@@ -90,7 +99,7 @@ final class ProjectRuntime: ObservableObject {
         guard status != .stopping else { return }
         userStopped = true
         status = .stopping
-        append("در حال توقف…", .system)
+        append(tr("در حال توقف…", "Stopping…"), .system)
 
         let pid = process.processIdentifier
         let tree = ProcessTree.descendants(of: pid)
@@ -102,7 +111,7 @@ final class ProjectRuntime: ObservableObject {
             ProcessTree.signal(leftovers, SIGKILL)
             if process.isRunning {
                 kill(pid, SIGKILL)
-                Task { @MainActor in self?.append("بعد از \(Int(grace)) ثانیه به‌زور بسته شد.", .system) }
+                Task { @MainActor in self?.append(tr("بعد از \(Int(grace)) ثانیه به‌زور بسته شد.", "Force killed after \(Int(grace))s."), .system) }
             }
         }
     }
@@ -130,7 +139,7 @@ final class ProjectRuntime: ObservableObject {
                 let listening = await Task.detached { PortFinder.isListening(port) }.value
                 if listening, self.status == .starting {
                     self.status = .running
-                    self.append("روی پورت \(port) آماده است.", .system)
+                    self.append(tr("روی پورت \(port) آماده است.", "Listening on port \(port)."), .system)
                     return
                 }
             }
@@ -141,11 +150,11 @@ final class ProjectRuntime: ObservableObject {
         readinessTask?.cancel()
         process = nil
         if userStopped || code == 0 {
-            append("فرایند بسته شد (\(code)).", .system)
+            append(tr("فرایند بسته شد (\(code)).", "Process exited (\(code))."), .system)
             status = .stopped
         } else {
-            let why = reason == .uncaughtSignal ? "با سیگنال \(code) بسته شد" : "با کد \(code) متوقف شد"
-            append("فرایند \(why).", .system)
+            let why = reason == .uncaughtSignal ? tr("با سیگنال \(code) بسته شد", "killed by signal \(code)") : tr("با کد \(code) متوقف شد", "exited with code \(code)")
+            append(tr("فرایند \(why).", "Process \(why)."), .system)
             status = .failed(why)
         }
         let completions = stopCompletions

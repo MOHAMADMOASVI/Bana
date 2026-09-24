@@ -9,4 +9,7 @@ struct Project: Identifiable, Hashable {
     let relativePath: String
 
     var name: String { url.lastPathComponent }
+
+    /// Where it sits under the scanned root; the root itself shows its own folder name instead of ".".
+    var displayPath: String { relativePath == "." ? name : relativePath }
 }

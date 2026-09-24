@@ -12,140 +12,158 @@ struct ProjectDetailView: View {
 
     var body: some View {
         let type = store.type(of: project)
-        VStack(spacing: 0) {
+        VStack(spacing: 14) {
             header(type)
-                .padding(16)
-            Divider()
-            HStack(alignment: .top, spacing: 16) {
-                networkBox
-                if showSettings { settingsBox(type) }
+            HStack(alignment: .top, spacing: 14) {
+                networkCard
+                if showSettings { settingsCard(type) }
             }
-            .padding(16)
             LogView(lines: runtime.log, onClear: runtime.clearLog)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color(nsColor: .separatorColor).opacity(0.6)))
         }
+        .padding(18)
         .navigationTitle(project.name)
-        .navigationSubtitle(project.relativePath)
+        .navigationSubtitle(project.displayPath)
         .onAppear(perform: loadSettings)
-        .sheet(item: $hostingJob) { HostingSheet(job: $0) }
+        .sheet(item: $hostingJob) { HostingSheet(job: $0).localizedUI() }
     }
 
     // MARK: Header
 
     private func header(_ type: ProjectType) -> some View {
-        HStack(spacing: 12) {
-            TypeIcon(type: type, size: 44)
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text(project.name).font(.title2.weight(.semibold)).lineLimit(1)
-                    StatusBadge(status: runtime.status)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 14) {
+                TypeIcon(type: type, size: 52)
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 8) {
+                        Text(project.name).font(.title2.weight(.bold)).lineLimit(1)
+                        StatusBadge(status: runtime.status)
+                    }
+                    Text("\(type.displayName) · \(project.displayPath)")
+                        .font(.callout).foregroundStyle(.secondary).lineLimit(1).truncationMode(.head)
                 }
+                Spacer(minLength: 12)
+                primaryButton
+            }
+
+            HStack(spacing: 8) {
+                Image(systemName: "terminal").foregroundStyle(.tertiary)
                 Text(runtime.commandLine.isEmpty ? project.url.path : runtime.commandLine)
-                    .ltr()
-                    .font(.callout.monospaced())
+                    .font(runtime.commandLine.isEmpty ? .callout : .callout.monospaced()) // paths may be Persian
                     .foregroundStyle(.secondary)
                     .lineLimit(1).truncationMode(.middle)
                     .textSelection(.enabled)
-                if case .failed(let message) = runtime.status {
-                    Text(message.rtl).font(.callout).foregroundStyle(.red).lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .ltr()
+            .padding(.horizontal, 10).padding(.vertical, 6)
+            .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+
+            if case .failed(let message) = runtime.status {
+                Label(message.rtl, systemImage: "exclamationmark.triangle.fill")
+                    .font(.callout).foregroundStyle(.red).lineLimit(3)
+            }
+
+            HStack(spacing: 8) {
+                Button { store.openInBrowser(project) } label: {
+                    Label(tr("باز کردن در مرورگر", "Open in Browser"), systemImage: "safari")
                 }
-            }
-            Spacer()
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) { showSettings.toggle() }
-            } label: {
-                Label("تنظیمات", systemImage: "slider.horizontal.3").labelStyle(.iconOnly)
-            }
-            .help("تنظیمات: پورت و دستور اجرا")
-            Button {
-                NSWorkspace.shared.activateFileViewerSelecting([project.url])
-            } label: {
-                Label("Finder", systemImage: "folder").labelStyle(.iconOnly)
-            }
-            .help("نمایش در Finder")
-            Button {
-                hostingJob = HostingJob(project: project, type: type)
-            } label: {
-                Label("هاست", systemImage: "shippingbox.and.arrow.backward")
-            }
-            .help("ساخت فایل zip آمادهٔ آپلود روی هاست")
-            Button {
-                store.openInBrowser(project)
-            } label: {
-                Label("باز کردن در مرورگر", systemImage: "safari")
-            }
-            .disabled(runtime.status != .running || runtime.port == nil)
-            if runtime.status.isActive {
-                Button(role: .destructive) { store.stop(project) } label: {
-                    Label("توقف", systemImage: "stop.fill").frame(minWidth: 56)
+                .disabled(runtime.status != .running || runtime.port == nil)
+                Button { hostingJob = HostingJob(project: project, type: type) } label: {
+                    Label(tr("آماده‌سازی هاست", "Prepare for Hosting"), systemImage: "shippingbox.and.arrow.backward")
                 }
-                .disabled(runtime.status == .stopping)
-                .keyboardShortcut(".", modifiers: .command)
-            } else {
-                Button { store.start(project) } label: {
-                    Label("اجرا", systemImage: "play.fill").frame(minWidth: 56)
+                .help(tr("ساخت فایل zip آمادهٔ آپلود روی هاست", "Build an upload-ready zip for shared hosting"))
+                Button { NSWorkspace.shared.activateFileViewerSelecting([project.url]) } label: {
+                    Label("Finder", systemImage: "folder")
                 }
-                .buttonStyle(.borderedProminent)
-                .keyboardShortcut(.return, modifiers: .command)
+                .help(tr("نمایش در Finder", "Reveal in Finder"))
+                Spacer()
+                Toggle(isOn: $showSettings.animation(.easeInOut(duration: 0.2))) {
+                    Label(tr("تنظیمات پروژه", "Project Settings"), systemImage: "slider.horizontal.3")
+                }
+                .toggleStyle(.button)
+                .help(tr("پورت، نوع و دستور اجرا", "Port, type and command"))
             }
+            .controlSize(.regular)
         }
-        .labelStyle(.titleAndIcon)
-        .controlSize(.large)
+        .card(padding: 16)
+    }
+
+    @ViewBuilder
+    private var primaryButton: some View {
+        if runtime.status.isActive {
+            Button { store.stop(project) } label: {
+                Label(tr("توقف", "Stop"), systemImage: "stop.fill").frame(minWidth: 70)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.red)
+            .controlSize(.large)
+            .disabled(runtime.status == .stopping)
+            .keyboardShortcut(".", modifiers: .command)
+        } else {
+            Button { store.start(project) } label: {
+                Label(tr("اجرا", "Start"), systemImage: "play.fill").frame(minWidth: 70)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .keyboardShortcut(.return, modifiers: .command)
+        }
     }
 
     // MARK: Network
 
-    private var networkBox: some View {
-        GroupBox {
+    private var networkCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label(tr("دسترسی", "Access"), systemImage: "network").font(.headline)
             if let local = store.url(for: project), runtime.status.isActive {
                 let lan = store.url(for: project, lan: true)
-                HStack(alignment: .top, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        linkRow("همین مک", local)
+                HStack(alignment: .center, spacing: 18) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        linkRow(tr("همین مک", "This Mac"), "laptopcomputer", local)
                         if let lan, store.lanIP != nil {
-                            linkRow("شبکهٔ محلی", lan)
-                            Text("با گوشیِ وصل به همین Wi‑Fi کد را اسکن کنید.")
-                                .font(.caption).foregroundStyle(.secondary)
+                            linkRow(tr("شبکهٔ محلی", "Local network"), "wifi", lan)
                         } else {
-                            Label("به شبکه وصل نیستید — فقط همین مک به سرور دسترسی دارد.", systemImage: "wifi.slash")
+                            Label(tr("به شبکه وصل نیستید — فقط همین مک به سرور دسترسی دارد.", "No network connection — only this Mac can reach the server."),
+                                  systemImage: "wifi.slash")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                     }
                     Spacer(minLength: 0)
-                    if let lan, store.lanIP != nil, let qr = QRCodeGenerator.image(for: lan.absoluteString, pointSize: 120) {
-                        Image(nsImage: qr)
-                            .interpolation(.none)
-                            .resizable()
-                            .frame(width: 120, height: 120)
-                            .padding(6)
-                            .background(.white, in: RoundedRectangle(cornerRadius: 8)) // scanners need dark-on-light
-                            .help(lan.absoluteString)
+                    if let lan, store.lanIP != nil, let qr = QRCodeGenerator.image(for: lan.absoluteString, pointSize: 112) {
+                        VStack(spacing: 6) {
+                            Image(nsImage: qr)
+                                .interpolation(.none)
+                                .resizable()
+                                .frame(width: 112, height: 112)
+                                .padding(7)
+                                .background(.white, in: RoundedRectangle(cornerRadius: 10)) // scanners need dark-on-light
+                                .help(lan.absoluteString)
+                            Text(tr("اسکن با گوشی", "Scan with a phone")).font(.caption2).foregroundStyle(.secondary)
+                        }
                     }
                 }
-                .padding(6)
             } else if runtime.status.isActive {
-                Text("بدون پورت منتشرشده در حال اجراست.").foregroundStyle(.secondary).padding(6)
+                Text(tr("بدون پورت منتشرشده در حال اجراست.", "Running without a published port.")).foregroundStyle(.secondary)
             } else {
-                HStack {
-                    Image(systemName: "network").foregroundStyle(.tertiary)
-                    Text("سرور را اجرا کنید تا لینک و کد QR ساخته شود.").foregroundStyle(.secondary)
-                    Spacer()
+                HStack(spacing: 10) {
+                    Image(systemName: "qrcode").font(.title2).foregroundStyle(.tertiary)
+                    Text(tr("سرور را اجرا کنید تا لینک و کد QR ساخته شود.", "Start the server to get a link and QR code."))
+                        .foregroundStyle(.secondary)
                 }
-                .padding(6)
+                .frame(maxWidth: .infinity, minHeight: 60, alignment: .leading)
             }
-        } label: {
-            Label("شبکه", systemImage: "network")
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .card()
     }
 
-    private func linkRow(_ title: LocalizedStringKey, _ url: URL) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title).font(.caption).foregroundStyle(.secondary)
+    private func linkRow(_ title: String, _ symbol: String, _ url: URL) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Label(title, systemImage: symbol).font(.caption).foregroundStyle(.secondary)
             HStack(spacing: 6) {
                 Link(url.absoluteString, destination: url)
-                    .ltr()
                     .font(.body.monospaced())
-                    .textSelection(.enabled)
                 Button {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(url.absoluteString, forType: .string)
@@ -153,43 +171,43 @@ struct ProjectDetailView: View {
                     Image(systemName: "doc.on.doc")
                 }
                 .buttonStyle(.borderless)
-                .help("کپی لینک")
+                .help(tr("کپی لینک", "Copy link"))
             }
+            .ltr()
         }
     }
 
-    // MARK: Settings
+    // MARK: Project settings
 
-    private func settingsBox(_ type: ProjectType) -> some View {
-        GroupBox {
+    private func settingsCard(_ type: ProjectType) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(tr("تنظیمات پروژه", "Project Settings"), systemImage: "slider.horizontal.3").font(.headline)
             Form {
-                Picker("نوع", selection: Binding(
+                Picker(tr("نوع", "Type"), selection: Binding(
                     get: { store.type(of: project) },
                     set: { new in store.updateSettings(for: project) { $0.typeOverride = new == project.detectedType ? nil : new } }
                 )) {
                     ForEach(ProjectType.allCases) { Label($0.displayName, systemImage: $0.symbol).tag($0) }
                 }
-                TextField("پورت", text: $portText, prompt: Text("خودکار (از \(String(type.defaultPort)))"))
-                    .ltr()
+                TextField(tr("پورت", "Port"), text: $portText, prompt: Text(tr("خودکار (از \(type.defaultPort))", "Auto (from \(type.defaultPort))")))
                     .onSubmit(savePort)
-                TextField("دستور", text: $commandText,
+                TextField(tr("دستور", "Command"), text: $commandText,
                           prompt: Text(CommandBuilder.spec(for: project, type: type, port: 0, customCommand: nil)
                             .displayCommand.replacingOccurrences(of: ":0", with: ":{port}")
                             .replacingOccurrences(of: " 0", with: " {port}")))
                     .font(.body.monospaced())
-                    .ltr()
                     .onSubmit(saveCommand)
-                Text("`\(lrm("{port}"))` با پورت انتخاب‌شده جایگزین می‌شود. دستور مستقیم و بدون shell اجرا می‌شود و از اجرای بعدی اعمال می‌شود.")
-                    .font(.caption).foregroundStyle(.secondary)
             }
             .formStyle(.columns)
-            .padding(6)
-            .onChange(of: portText) { _ in savePort() }
-            .onChange(of: commandText) { _ in saveCommand() }
-        } label: {
-            Label("تنظیمات", systemImage: "slider.horizontal.3")
+            Text(tr("\(lrm("{port}")) با پورت انتخاب‌شده جایگزین می‌شود. دستور مستقیم و بدون shell اجرا می‌شود و از اجرای بعدی اعمال می‌شود.",
+                    "{port} is replaced with the chosen port. Runs directly, without a shell. Applies on next start.").rtl)
+                .font(.caption).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(width: 380)
+        .onChange(of: portText) { _ in savePort() }
+        .onChange(of: commandText) { _ in saveCommand() }
+        .frame(width: 380, alignment: .leading)
+        .card()
         .transition(.move(edge: .trailing).combined(with: .opacity))
     }
 
@@ -200,7 +218,7 @@ struct ProjectDetailView: View {
     }
 
     private func savePort() {
-        let digits = portText.filter(\.isNumber)
+        let digits = portText.filter(\.isASCII).filter(\.isNumber)
         if digits != portText { portText = digits; return }
         let port = Int(digits).flatMap { (1...65535).contains($0) ? $0 : nil }
         store.updateSettings(for: project) { $0.port = port }

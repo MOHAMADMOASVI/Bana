@@ -37,6 +37,6 @@ Tests: `xcodebuild -scheme Bana -derivedDataPath build test`. Opt-in run against
 
 Icon: `swift Scripts/make-icon.swift Bana/Resources/Assets.xcassets/AppIcon.appiconset Scripts/logo_bana.png`.
 
-The UI is Persian (right-to-left; `Views/Persian.swift`). Rendered previews: `TEST_RUNNER_BANA_SNAPSHOT_DIR=/tmp/snap xcodebuild … -only-testing:BanaTests/SnapshotTests`.
+The UI is Persian or English, chosen in Settings (⌘,) together with appearance, projects folder and hosting output folder. Strings are `tr("فارسی", "English")` in `Views/Localization.swift`; switching rebuilds the UI and flips its direction. Rendered previews: `TEST_RUNNER_BANA_SNAPSHOT_DIR=/tmp/snap xcodebuild … -only-testing:BanaTests/SnapshotTests`.
 
 App Sandbox is off (`Bana.entitlements`): servers need the whole home folder (`~/.nvm`, `~/.pyenv`, `~/.composer`, `/tmp`).

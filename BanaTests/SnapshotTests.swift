@@ -27,14 +27,21 @@ final class SnapshotTests: XCTestCase {
         }
         .frame(width: 300)
 
+        let savedLanguage = UserDefaults.standard.string(forKey: AppLanguage.key)
+        defer { UserDefaults.standard.set(savedLanguage, forKey: AppLanguage.key) } // shared with the installed app
+        for lang in AppLanguage.allCases {
+        UserDefaults.standard.set(lang.rawValue, forKey: AppLanguage.key)
         let screens: [(String, AnyView, CGSize)] = [
-            ("detail", AnyView(ProjectDetailView(project: laravel, runtime: store.runtime(for: laravel))), CGSize(width: 900, height: 620)),
-            ("hosting", AnyView(HostingSheet(job: HostingJob(project: plain, type: plain.detectedType))), CGSize(width: 640, height: 480)),
+            ("detail", AnyView(ProjectDetailView(project: laravel, runtime: store.runtime(for: laravel))), CGSize(width: 940, height: 680)),
+            ("hosting", AnyView(HostingSheet(job: HostingJob(project: plain, type: plain.detectedType))), CGSize(width: 640, height: 500)),
             ("cards", AnyView(cards), CGSize(width: 300, height: 330)),
+            ("tile", AnyView(ProjectCard(runtime: store.runtime(for: laravel), project: laravel, style: .tile).frame(width: 260).padding()), CGSize(width: 300, height: 220)),
+            ("settings", AnyView(SettingsView()), CGSize(width: 500, height: 520)),
+            ("welcome", AnyView(OverviewGrid()), CGSize(width: 700, height: 460)),
         ]
         for (name, view, size) in screens {
             for dark in [false, true] {
-                let host = NSHostingView(rootView: view.environmentObject(store).persianUI()
+                let host = NSHostingView(rootView: view.environmentObject(store).localizedUI()
                     .frame(width: size.width, height: size.height)
                     .background(Color(nsColor: .windowBackgroundColor)))
                 host.frame = CGRect(origin: .zero, size: size)
@@ -47,8 +54,9 @@ final class SnapshotTests: XCTestCase {
                 let rep = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
                 host.cacheDisplay(in: host.bounds, to: rep)
                 try rep.representation(using: .png, properties: [:])!
-                    .write(to: URL(fileURLWithPath: out).appendingPathComponent("\(name)-\(dark ? "dark" : "light").png"))
+                    .write(to: URL(fileURLWithPath: out).appendingPathComponent("\(lang.rawValue)-\(name)-\(dark ? "dark" : "light").png"))
             }
+        }
         }
     }
 }

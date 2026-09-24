@@ -9,11 +9,11 @@ enum RunStatus: Equatable {
 
     var label: String {
         switch self {
-        case .stopped: "متوقف"
-        case .starting: "در حال شروع"
-        case .running: "در حال اجرا"
-        case .stopping: "در حال توقف"
-        case .failed: "خطا"
+        case .stopped: tr("متوقف", "Stopped")
+        case .starting: tr("در حال شروع", "Starting")
+        case .running: tr("در حال اجرا", "Running")
+        case .stopping: tr("در حال توقف", "Stopping")
+        case .failed: tr("خطا", "Error")
         }
     }
 

@@ -4,23 +4,31 @@ import SwiftUI
 struct BanaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @ObservedObject private var store = ProjectStore.shared
+    // Re-evaluates the menu titles when the language changes.
+    @AppStorage(AppLanguage.key) private var language = AppLanguage.fa.rawValue
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(store)
-                .persianUI()
-                .frame(minWidth: 820, minHeight: 520)
+                .localizedUI()
+                .frame(minWidth: 860, minHeight: 560)
         }
-        .defaultSize(width: 1100, height: 720)
+        .defaultSize(width: 1140, height: 760)
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("انتخاب پوشهٔ پروژه‌ها…") { store.chooseRoot() }
+                Button(tr("انتخاب پوشهٔ پروژه‌ها…", "Choose Projects Folder…")) { store.chooseRoot() }
                     .keyboardShortcut("o")
-                Button("اسکن دوبارهٔ پروژه‌ها") { store.rescan() }
+                Button(tr("اسکن دوبارهٔ پروژه‌ها", "Rescan Projects")) { store.rescan() }
                     .keyboardShortcut("r")
                     .disabled(store.rootURL == nil)
             }
+        }
+
+        Settings {
+            SettingsView()
+                .environmentObject(store)
+                .localizedUI()
         }
     }
 }

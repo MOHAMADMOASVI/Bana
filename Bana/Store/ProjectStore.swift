@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 @MainActor
@@ -14,6 +15,7 @@ final class ProjectStore: ObservableObject {
     private var settings: AppSettings
     private var runtimes: [Project.ID: ProjectRuntime] = [:]
     private var ipTimer: Timer?
+    private var statusWatchers: [AnyCancellable] = []
 
     init() {
         settings = SettingsStore.load()
@@ -32,8 +34,8 @@ final class ProjectStore: ObservableObject {
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
         panel.canCreateDirectories = false
-        panel.prompt = "انتخاب"
-        panel.message = "پوشه‌ای را که پروژه‌هایتان در آن است انتخاب کنید"
+        panel.prompt = tr("انتخاب", "Choose")
+        panel.message = tr("پوشه‌ای را که پروژه‌هایتان در آن است انتخاب کنید", "Choose the folder that contains your projects")
         panel.directoryURL = rootURL ?? URL(fileURLWithPath: ExecutableLocator.realHome + "/Projects")
         guard panel.runModal() == .OK, let url = panel.url else { return }
 
@@ -80,6 +82,8 @@ final class ProjectStore: ObservableObject {
         if let rt = runtimes[project.id] { return rt }
         let rt = ProjectRuntime()
         runtimes[project.id] = rt
+        // Status changes (not every log line) refresh store-level views like the running count.
+        statusWatchers.append(rt.$status.dropFirst().sink { [weak self] _ in self?.objectWillChange.send() })
         return rt
     }
 
@@ -110,14 +114,14 @@ final class ProjectStore: ObservableObject {
         let port: Int
         if let fixed = s.port {
             guard PortFinder.isFree(fixed), !reserved.contains(fixed) else {
-                rt.fail("پورت \(fixed) در حال استفاده است. در تنظیمات عوضش کنید یا خالی بگذارید تا خودکار انتخاب شود.")
+                rt.fail(tr("پورت \(fixed) در حال استفاده است. در تنظیمات پروژه عوضش کنید یا خالی بگذارید تا خودکار انتخاب شود.", "Port \(fixed) is already in use. Change it in the project settings or clear it to pick one automatically."))
                 return
             }
             port = fixed
         } else if let free = PortFinder.findFree(startingAt: type.defaultPort, excluding: reserved) {
             port = free
         } else {
-            rt.fail("نزدیک پورت \(type.defaultPort) پورت آزادی پیدا نشد.")
+            rt.fail(tr("نزدیک پورت \(type.defaultPort) پورت آزادی پیدا نشد.", "No free port found near \(type.defaultPort)."))
             return
         }
 

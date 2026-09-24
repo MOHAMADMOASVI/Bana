@@ -21,8 +21,8 @@
 		3C108A291DCB153A88E53E37 /* NetworkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3D1AE343054F4DCF452B2B /* NetworkInfo.swift */; };
 		4181F97C2D6A6525FAE08166 /* ExecutableLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8881C846FF4F601B08575911 /* ExecutableLocator.swift */; };
 		4284C1418A07FCD6FB1309E5 /* ProjectScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F757188604CD78628392D962 /* ProjectScanner.swift */; };
-		44339D0885914EEBB6186FC8 /* Persian.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E531C89DBC53032EF88B7E /* Persian.swift */; };
 		50538E2225EBFE1AFAD2E428 /* ProjectSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C73815D217AF59AA2DC04D2 /* ProjectSettings.swift */; };
+		549E5A7DECBD587CE791D5AE /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7952587134CCC212E658F7 /* Localization.swift */; };
 		585DA1D4DFC089B0DA45FBFA /* ProjectRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2651C59818FEFF9E574614 /* ProjectRuntime.swift */; };
 		63229491519DAE19970920BB /* HostingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0471C4100ADE39571F0154A4 /* HostingTests.swift */; };
 		6EFEFC74E4BACDB108ABCB17 /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1CB538668C926A040969DB8 /* LogView.swift */; };
@@ -37,6 +37,7 @@
 		C59538E45D13EE04B1A39578 /* OverviewGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A10BF82FE0D84DB1538BC80 /* OverviewGrid.swift */; };
 		C833E4923BE7AFCB5CBB35A9 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5BDECABCEF62610E050C5A /* SettingsStore.swift */; };
 		C8F84B32FB2D2F91AFDC4CA0 /* ProjectCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE481F6B6596755F2843AB0E /* ProjectCard.swift */; };
+		D248FCE1C40C7D2DA2F6FA76 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A657CCB3EBB8A362AAC138 /* SettingsView.swift */; };
 		F7C756715A44171E1D325092 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9727EBEB1DE1B1844A606543 /* AppDelegate.swift */; };
 		F850BCFB660A852086C62632 /* ProjectType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B755F906068DC023BE0270 /* ProjectType.swift */; };
 /* End PBXBuildFile section */
@@ -54,12 +55,14 @@
 /* Begin PBXFileReference section */
 		0471C4100ADE39571F0154A4 /* HostingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostingTests.swift; sourceTree = "<group>"; };
 		06BC4872FBB5472725BFB4FB /* ProjectStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectStore.swift; sourceTree = "<group>"; };
+		0C7952587134CCC212E658F7 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		0CA1547E83F6D9959778A324 /* fa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fa; path = fa.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		13D8115148B6F05C8989948C /* HostingPackager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostingPackager.swift; sourceTree = "<group>"; };
 		1C3D1AE343054F4DCF452B2B /* NetworkInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInfo.swift; sourceTree = "<group>"; };
 		26B24CAA49DD747AB8FE54D3 /* PortFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortFinder.swift; sourceTree = "<group>"; };
 		2B11EA6558DDA3B77D849A69 /* QRCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeGenerator.swift; sourceTree = "<group>"; };
 		2D2651C59818FEFF9E574614 /* ProjectRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectRuntime.swift; sourceTree = "<group>"; };
+		31A657CCB3EBB8A362AAC138 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		35F2161918F9765DDCA33AA4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4E8E7BE3A008DA7A9A2A125E /* ProjectLauncherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectLauncherTests.swift; sourceTree = "<group>"; };
 		509B500719DDB95475B1FD03 /* RealProjectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealProjectsTests.swift; sourceTree = "<group>"; };
@@ -74,7 +77,6 @@
 		6D60CFA66B670FF1677CBAFA /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		7A10BF82FE0D84DB1538BC80 /* OverviewGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewGrid.swift; sourceTree = "<group>"; };
 		7A5BDECABCEF62610E050C5A /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
-		84E531C89DBC53032EF88B7E /* Persian.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persian.swift; sourceTree = "<group>"; };
 		85763E4AC6832910D7F00A2F /* ProjectDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailView.swift; sourceTree = "<group>"; };
 		8881C846FF4F601B08575911 /* ExecutableLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutableLocator.swift; sourceTree = "<group>"; };
 		8A8A956A5A2584E54E07AB20 /* Bana.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bana.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -104,11 +106,12 @@
 			children = (
 				DD1DA456C0F467B6BB8C2AF7 /* ContentView.swift */,
 				53940CD8852F148ADA132CC0 /* HostingSheet.swift */,
+				0C7952587134CCC212E658F7 /* Localization.swift */,
 				C1CB538668C926A040969DB8 /* LogView.swift */,
 				7A10BF82FE0D84DB1538BC80 /* OverviewGrid.swift */,
-				84E531C89DBC53032EF88B7E /* Persian.swift */,
 				BE481F6B6596755F2843AB0E /* ProjectCard.swift */,
 				85763E4AC6832910D7F00A2F /* ProjectDetailView.swift */,
+				31A657CCB3EBB8A362AAC138 /* SettingsView.swift */,
 				63D8E3B7CBE2EA94AE09547C /* SidebarView.swift */,
 				6D60CFA66B670FF1677CBAFA /* StatusBadge.swift */,
 			);
@@ -311,10 +314,10 @@
 				4181F97C2D6A6525FAE08166 /* ExecutableLocator.swift in Sources */,
 				1AC82654B9B3259715396C93 /* HostingPackager.swift in Sources */,
 				8249CBFD72E538579AE8FAB6 /* HostingSheet.swift in Sources */,
+				549E5A7DECBD587CE791D5AE /* Localization.swift in Sources */,
 				6EFEFC74E4BACDB108ABCB17 /* LogView.swift in Sources */,
 				3C108A291DCB153A88E53E37 /* NetworkInfo.swift in Sources */,
 				C59538E45D13EE04B1A39578 /* OverviewGrid.swift in Sources */,
-				44339D0885914EEBB6186FC8 /* Persian.swift in Sources */,
 				15E128341FFB2CD172FBB08C /* PortFinder.swift in Sources */,
 				20C51BB081554E3E8B5182CE /* ProcessTree.swift in Sources */,
 				2ED0A22EC9312227F7154173 /* Project.swift in Sources */,
@@ -328,6 +331,7 @@
 				2D2AD585432CE718154981A2 /* QRCodeGenerator.swift in Sources */,
 				76A9DB728F3C0BC3682AF26F /* RunStatus.swift in Sources */,
 				C833E4923BE7AFCB5CBB35A9 /* SettingsStore.swift in Sources */,
+				D248FCE1C40C7D2DA2F6FA76 /* SettingsView.swift in Sources */,
 				A3915CEF1FDECAE116C9F2B1 /* SidebarView.swift in Sources */,
 				2FE62DD8E04CFD06222DE59D /* StatusBadge.swift in Sources */,
 			);

@@ -3,7 +3,7 @@ import SwiftUI
 /// Live stdout/stderr, auto-scrolling to the newest line.
 struct LogView: View {
     let lines: [LogLine]
-    var title: LocalizedStringKey = "خروجی"
+    var title: String = tr("خروجی", "Output")
     var onClear: (() -> Void)?
     @AppStorage("logAutoScroll") private var autoScroll = true
     private static let bottomID = "log-bottom"
@@ -12,16 +12,16 @@ struct LogView: View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 Text(title).font(.headline)
-                Text("\(lines.count) خط").font(.caption).foregroundStyle(.secondary)
+                Text(tr("\(num(lines.count)) خط", "\(lines.count) lines")).font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Toggle(isOn: $autoScroll) { Label("دنبال کردن خروجی", systemImage: "arrow.down.to.line") }
+                Toggle(isOn: $autoScroll) { Label(tr("دنبال کردن خروجی", "Auto-scroll"), systemImage: "arrow.down.to.line") }
                     .toggleStyle(.button)
-                    .help("رفتن خودکار به آخرین خط")
-                Button { copyAll() } label: { Label("کپی", systemImage: "doc.on.doc") }
-                    .help("کپی خروجی")
+                    .help(tr("رفتن خودکار به آخرین خط", "Follow new output"))
+                Button { copyAll() } label: { Label(tr("کپی", "Copy"), systemImage: "doc.on.doc") }
+                    .help(tr("کپی خروجی", "Copy log"))
                 if let onClear {
-                    Button(action: onClear) { Label("پاک کردن", systemImage: "trash") }
-                        .help("پاک کردن خروجی")
+                    Button(action: onClear) { Label(tr("پاک کردن", "Clear"), systemImage: "trash") }
+                        .help(tr("پاک کردن خروجی", "Clear log"))
                 }
             }
             .labelStyle(.iconOnly)
@@ -36,7 +36,7 @@ struct LogView: View {
                         ForEach(lines) { line in
                             Text(line.text.isEmpty ? " " : line.text)
                                 // Bana's own (Persian) messages need a proportional font; monospace breaks Persian joining.
-                                .font(line.stream == .system ? .system(size: 12) : .system(size: 11.5, design: .monospaced))
+                                .font(line.stream == .system || line.hasRTLScript ? .system(size: 12) : .system(size: 11.5, design: .monospaced))
                                 .foregroundStyle(color(for: line))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -55,7 +55,7 @@ struct LogView: View {
                 .onAppear { proxy.scrollTo(Self.bottomID, anchor: .bottom) }
                 .overlay {
                     if lines.isEmpty {
-                        Text("هنوز خروجی‌ای نیست").foregroundStyle(.tertiary)
+                        Text(tr("هنوز خروجی‌ای نیست", "No output yet")).foregroundStyle(.tertiary)
                     }
                 }
             }

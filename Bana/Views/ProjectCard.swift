@@ -15,7 +15,7 @@ struct ProjectCard: View {
         case .row:
             HStack(spacing: 10) {
                 TypeIcon(type: type, size: 28)
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(project.name).font(.body.weight(.medium)).lineLimit(1)
                     HStack(spacing: 6) {
                         StatusBadge(status: runtime.status)
@@ -27,48 +27,52 @@ struct ProjectCard: View {
                 Spacer(minLength: 4)
                 buttons
             }
-            .padding(.vertical, 3)
+            .padding(.vertical, 4)
 
         case .tile:
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
-                    TypeIcon(type: type, size: 34)
+                    TypeIcon(type: type, size: 38)
                     Spacer()
                     StatusBadge(status: runtime.status)
                 }
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(project.name).font(.headline).lineLimit(1)
-                    Text("\(type.displayName) · \(project.relativePath)")
-                        .font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+                    Text(project.displayPath)
+                        .ltr()
+                        .font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.head)
                 }
-                HStack { buttons; Spacer() }
+                Divider()
+                HStack {
+                    Text(type.displayName).font(.caption.weight(.medium)).foregroundStyle(type.tint)
+                    Spacer()
+                    buttons
+                }
             }
-            .padding(12)
-            .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color(nsColor: .separatorColor)))
+            .card()
         }
     }
 
     private var buttons: some View {
-        HStack(spacing: 6) {
-            Button {
-                store.toggle(project)
-            } label: {
-                Image(systemName: runtime.status.isActive ? "stop.fill" : "play.fill")
-                    .frame(width: 14)
-            }
-            .help(runtime.status.isActive ? "توقف" : "اجرا")
-            .disabled(runtime.status == .stopping)
-
+        HStack(spacing: 8) {
             Button {
                 store.openInBrowser(project)
             } label: {
                 Image(systemName: "safari")
             }
-            .help("باز کردن در مرورگر")
+            .help(tr("باز کردن در مرورگر", "Open in Browser"))
             .disabled(runtime.status != .running || runtime.port == nil)
+
+            Button {
+                store.toggle(project)
+            } label: {
+                Image(systemName: runtime.status.isActive ? "stop.circle.fill" : "play.circle.fill")
+                    .font(.system(size: style == .tile ? 20 : 17))
+                    .foregroundStyle(runtime.status.isActive ? Color.red : Color.accentColor)
+            }
+            .help(runtime.status.isActive ? tr("توقف", "Stop") : tr("اجرا", "Start"))
+            .disabled(runtime.status == .stopping)
         }
         .buttonStyle(.borderless)
-        .controlSize(style == .tile ? .regular : .small)
     }
 }
