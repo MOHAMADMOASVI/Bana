@@ -6,7 +6,9 @@ import SwiftUI
 @MainActor
 final class SnapshotTests: XCTestCase {
     func testRenderScreens() async throws {
-        let out = try XCTUnwrap(ProcessInfo.processInfo.environment["BANA_SNAPSHOT_DIR"].map { $0 } ?? { throw XCTSkip("set BANA_SNAPSHOT_DIR") }())
+        let dir = ProcessInfo.processInfo.environment["BANA_SNAPSHOT_DIR"]
+        try XCTSkipIf(dir == nil, "opt-in: TEST_RUNNER_BANA_SNAPSHOT_DIR=/path")
+        let out = dir!
         let root = ProcessInfo.processInfo.environment["LAUNCHER_REAL_ROOT"] ?? NSHomeDirectory()
         let projects = ProjectScanner.scan(root: URL(fileURLWithPath: root))
         let store = ProjectStore.shared
