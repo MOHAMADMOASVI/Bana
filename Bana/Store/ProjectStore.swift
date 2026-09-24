@@ -49,11 +49,15 @@ final class ProjectStore: ObservableObject {
     }
 
     private func restoreRoot() {
-        guard let data = settings.rootBookmark else { return }
         var stale = false
-        guard let url = try? URL(resolvingBookmarkData: data, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &stale) else { return }
+        guard let url = settings.rootBookmark.flatMap({
+            try? URL(resolvingBookmarkData: $0, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &stale)
+        }) ?? settings.rootPath.flatMap({ path in
+            // Not sandboxed: a plain path is enough when there is no (valid) bookmark.
+            FileManager.default.fileExists(atPath: path) ? URL(fileURLWithPath: path, isDirectory: true) : nil
+        }) else { return }
         _ = url.startAccessingSecurityScopedResource()
-        if stale {
+        if stale || settings.rootBookmark == nil {
             settings.rootBookmark = try? url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
             persist()
         }
