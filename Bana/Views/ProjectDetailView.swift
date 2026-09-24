@@ -24,7 +24,6 @@ struct ProjectDetailView: View {
         }
         .padding(18)
         .navigationTitle(project.name)
-        .navigationSubtitle(project.displayPath)
         .onAppear(perform: loadSettings)
         .sheet(item: $hostingJob) { HostingSheet(job: $0).localizedUI() }
     }
