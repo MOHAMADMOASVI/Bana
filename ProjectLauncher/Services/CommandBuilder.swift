@@ -30,6 +30,12 @@ enum CommandBuilder {
         let dir = project.url
         let fm = FileManager.default
         switch type {
+        case .laravel:
+            // artisan serve keeps Laravel's own router and env handling; it spawns php -S as a child.
+            return LaunchSpec(program: "php",
+                              arguments: ["artisan", "serve", "--host=0.0.0.0", "--port=\(port)", "--no-reload", "--tries=1"],
+                              environment: env, port: port)
+
         case .php:
             var args = ["-S", "0.0.0.0:\(port)"]
             // Sandboxed children can't write /tmp; opcache refuses to start without its lock file.

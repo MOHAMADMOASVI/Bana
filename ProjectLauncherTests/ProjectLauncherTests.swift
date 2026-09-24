@@ -20,6 +20,8 @@ final class DetectionTests: XCTestCase {
     func testDetectsEachTypeAndPrefersPHPForLaravel() throws {
         try make("shop/composer.json", "{}")
         try make("shop/package.json", "{}")          // Laravel has both → PHP
+        try make("crm/artisan")                     // Laravel wins over composer.json
+        try make("crm/composer.json", "{}")
         try make("api/main.py")
         try make("web/package.json", "{}")
         try make("stack/docker-compose.yml", "services: {}")
@@ -28,7 +30,7 @@ final class DetectionTests: XCTestCase {
         try make("notes/readme.md")                 // not a project
 
         let found = Dictionary(uniqueKeysWithValues: ProjectScanner.scan(root: root).map { ($0.relativePath, $0.detectedType) })
-        XCTAssertEqual(found, ["shop": .php, "api": .python, "web": .node, "stack": .docker, "clients/acme": .php])
+        XCTAssertEqual(found, ["crm": .laravel, "shop": .php, "api": .python, "web": .node, "stack": .docker, "clients/acme": .php])
     }
 
     func testCommands() throws {
@@ -41,6 +43,9 @@ final class DetectionTests: XCTestCase {
         let php = CommandBuilder.spec(for: projects["lara"]!, type: .php, port: 8001, customCommand: nil)
         XCTAssertEqual(php.program, "php")
         XCTAssertEqual(Array(php.arguments.suffix(4)), ["-S", "0.0.0.0:8001", "-t", "public"])
+
+        let lara = CommandBuilder.spec(for: projects["lara"]!, type: .laravel, port: 8010, customCommand: nil)
+        XCTAssertEqual(lara.arguments, ["artisan", "serve", "--host=0.0.0.0", "--port=8010", "--no-reload", "--tries=1"])
 
         let node = CommandBuilder.spec(for: projects["vite"]!, type: .node, port: 5174, customCommand: nil)
         XCTAssertEqual(node.arguments, ["run", "dev", "--", "--host", "0.0.0.0", "--port", "5174"])

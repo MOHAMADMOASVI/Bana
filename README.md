@@ -4,6 +4,7 @@ A lightweight native macOS app (SwiftUI, macOS 13+) that finds local projects in
 
 | Detected by | Type | Default command |
 |---|---|---|
+| `artisan` | Laravel | `php artisan serve --host=0.0.0.0 --port={port} --no-reload --tries=1` |
 | `composer.json` / `index.php` / `public/index.php` | PHP | `php -S 0.0.0.0:{port}` (+ `-t public` when `public/index.php` exists) |
 | `requirements.txt` / `main.py` | Python | `uvicorn main:app --host 0.0.0.0 --port {port}` (uses `.venv/bin` / `venv/bin` first) |
 | `package.json` | Node.js | `npm run dev` (+ host/port flags for Vite, Astro, Nuxt, Next) |

@@ -13,7 +13,7 @@ struct OverviewGrid: View {
             } else if store.projects.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "folder.badge.questionmark").font(.system(size: 40)).foregroundStyle(.tertiary)
-                    Text("No PHP, Python, Node.js or Docker projects found").foregroundStyle(.secondary)
+                    Text("No Laravel, PHP, Python, Node.js or Docker projects found").foregroundStyle(.secondary)
                     Button("Choose Another Folder…") { store.chooseRoot() }
                 }
             } else {
@@ -39,7 +39,7 @@ struct OverviewGrid: View {
                 .font(.system(size: 52, weight: .light))
                 .foregroundStyle(.tint)
             Text("Project Launcher").font(.title2.weight(.semibold))
-            Text("Choose the folder where you keep your projects.\nPHP, Python, Node.js and Docker projects are detected automatically.")
+            Text("Choose the folder where you keep your projects.\nLaravel, PHP, Python, Node.js and Docker projects are detected automatically.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
             Button("Choose Folder…") { store.chooseRoot() }
