@@ -4,6 +4,7 @@ import SwiftUI
 struct HostingSheet: View {
     @ObservedObject var job: HostingJob
     @Environment(\.dismiss) private var dismiss
+    @State private var editingEnv = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -38,7 +39,7 @@ struct HostingSheet: View {
                         section(tr("چیدمان بسته", "Package layout"), job.layoutDescription, symbol: "square.stack.3d.up")
                         section(tr("پیش از راه‌اندازی", "Before going live"), job.checks, symbol: "checklist")
                         if !job.flagged.isEmpty { reviewFiles }
-                        if job.type == .laravel {
+                        if job.type == .laravel && !job.useCustomEnv { // site address only feeds the generated .env
                             HStack {
                                 Text(tr("آدرس سایت", "Site address")).foregroundStyle(.secondary)
                                 TextField("", text: $job.siteAddress, prompt: Text("example.com"))
@@ -52,6 +53,7 @@ struct HostingSheet: View {
                                 }
                             }
                         }
+                        if job.supportsCustomEnv { customEnvSection }
                         if job.hasFrontendBuild && job.type != .python && job.type != .docker {
                             Toggle(tr("اول npm run build اجرا شود", "Run npm run build first"), isOn: $job.rebuildFrontend).disabled(job.isRunning)
                         }
@@ -111,6 +113,46 @@ struct HostingSheet: View {
             HStack(spacing: 6) { ProgressView().controlSize(.small); Text(step.rtl).font(.callout).foregroundStyle(.secondary) }
         case .finished: Label(tr("آماده شد", "Ready"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
         case .failed: Label(tr("ناموفق", "Failed"), systemImage: "xmark.octagon.fill").foregroundStyle(.red)
+        }
+    }
+
+    private var customEnvSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle(isOn: $job.useCustomEnv) {
+                Text(tr("\(lrm(".env")) دلخواه برای هاست", "Custom .env for the host").rtl).font(.headline)
+            }
+            .disabled(job.isRunning)
+            Text(job.useCustomEnv
+                 ? tr("همین فایل داخل بسته می‌رود و برای دفعه‌های بعد ذخیره می‌ماند (فقط روی همین مک).", "This file goes into the package and is kept for next time (on this Mac only).")
+                 : tr("خاموش: بنا خودش یک \(lrm(".env")) مخصوص هاست می‌سازد.", "Off: Bana generates a production .env.").rtl)
+                .font(.caption).foregroundStyle(.secondary)
+            if job.useCustomEnv {
+                HStack {
+                    Button { editingEnv = true } label: {
+                        Label(job.customEnv.isEmpty ? tr("نوشتن \(lrm(".env")) هاست…", "Write host .env…").rtl : tr("ویرایش \(lrm(".env")) هاست…", "Edit host .env…").rtl,
+                              systemImage: "key.horizontal")
+                    }
+                    if !job.customEnv.isEmpty {
+                        Text(tr("\(num(EnvDocument(text: job.customEnv).lines.filter(\.isEntry).count)) متغیر", "\(EnvDocument(text: job.customEnv).lines.filter(\.isEntry).count) variables"))
+                            .font(.caption).foregroundStyle(.secondary)
+                        Spacer()
+                        Button(tr("حذف", "Forget"), role: .destructive) { job.forgetCustomEnv() }.controlSize(.small)
+                    }
+                }
+                .disabled(job.isRunning)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(Color.accentColor.opacity(0.07), in: RoundedRectangle(cornerRadius: 8))
+        .sheet(isPresented: $editingEnv) {
+            EnvEditorView(title: tr("\(lrm(".env")) هاست", "Host .env").rtl,
+                          subtitle: "\(job.appFolderName)/.env",
+                          text: job.draftEnv(),
+                          note: tr("اگر APP_KEY خالی بماند، هنگام ساخت یک کلید تازه گذاشته می‌شود.", "If APP_KEY is left empty, a fresh key is filled in at build time.")) { text in
+                try job.saveCustomEnv(text)
+            }
+            .localizedUI()
         }
     }
 

@@ -9,6 +9,7 @@ struct ProjectDetailView: View {
     @State private var commandText = ""
     @State private var showSettings = false
     @State private var hostingJob: HostingJob?
+    @State private var showEnv = false
 
     var body: some View {
         let type = store.type(of: project)
@@ -26,6 +27,7 @@ struct ProjectDetailView: View {
         .navigationTitle(project.name)
         .onAppear(perform: loadSettings)
         .sheet(item: $hostingJob) { HostingSheet(job: $0).localizedUI() }
+        .sheet(isPresented: $showEnv) { LocalEnvSheet(project: project, isRunning: runtime.status.isActive).localizedUI() }
     }
 
     // MARK: Header
@@ -73,6 +75,10 @@ struct ProjectDetailView: View {
                     Label(tr("آماده‌سازی هاست", "Prepare for Hosting"), systemImage: "shippingbox.and.arrow.backward")
                 }
                 .help(tr("ساخت فایل zip آمادهٔ آپلود روی هاست", "Build an upload-ready zip for shared hosting"))
+                Button { showEnv = true } label: {
+                    Label(".env", systemImage: "key.horizontal")
+                }
+                .help(tr("ویرایش فایل‌های \(lrm(".env")) پروژه", "Edit the project's .env files"))
                 Button { NSWorkspace.shared.activateFileViewerSelecting([project.url]) } label: {
                     Label("Finder", systemImage: "folder")
                 }

@@ -14,6 +14,10 @@ A lightweight native macOS app (SwiftUI, macOS 13+) that finds local projects in
 
 Scanning goes 5 levels deep, skips `node_modules`, `vendor` and similar, and stops at the first folder that is a project. You can override the port, command (`{port}` placeholder, no shell) and type per project. Settings are stored in `~/Library/Application Support/Bana/settings.json`. Quitting stops every server's whole process tree.
 
+## .env files
+
+The **.env** button on a project lists its `.env*` files (root and `deploy/**`) and edits them as a form, with secrets hidden, or as plain text. Comments and order are kept, and file permissions are preserved (new files are created owner-only). If `.env` is missing, it can be created from `.env.example`.
+
 ## Prepare for Hosting
 
 The **Hosting** button builds `<name>-hosting-<date>.zip` (on the Desktop by default) for cPanel/DirectAdmin hosts with no SSH:
@@ -22,6 +26,7 @@ The **Hosting** button builds `<name>-hosting-<date>.zip` (on the Desktop by def
 * **Plain PHP**: the project goes into `public_html/`.
 * **Node**: the static build output (`dist/`, `build/` or `out/`) goes into `public_html/`, or the whole project if there is none.
 * **Python / Docker**: the project without venvs, caches or `.git`.
+* **Custom .env**: for layouts where `.env` sits outside `public_html`, you can write the host's `.env` yourself. It is saved per project in `~/Library/Application Support/Bana/hosting-env/` (mode 600) and reused next time. An empty `APP_KEY` is filled in at build time.
 * **Review files**: backups, archives, `.sql`/`.bak` dumps and `backups/` folders are left out by default, because in a web root they are plain downloads. Secret-looking files are flagged for you to decide.
 * **Project script**: if the project has `deploy/build.sh` or `deploy/<target>/build.sh`, it can run that instead, and Bana finds the zip it produces.
 

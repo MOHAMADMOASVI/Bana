@@ -22,6 +22,9 @@ final class HostingJob: ObservableObject {
     @Published var rebuildFrontend = true
     /// Becomes APP_URL (Laravel); "example.com" → "https://example.com".
     @Published var siteAddress = ""
+    /// The user's own .env for the host (saved per project); only used where .env sits outside public_html.
+    @Published var useCustomEnv: Bool
+    @Published var customEnv: String
     @Published var outputDirectory: URL
     /// Files that look like backups, dumps or secrets; the user decides per file.
     @Published var flagged: [FlaggedFile]
@@ -41,6 +44,28 @@ final class HostingJob: ObservableObject {
         useProjectScript = projectScript != nil
         outputDirectory = HostingJob.defaultOutputDirectory
         flagged = HostingCopier.flaggedFiles(in: project.url, type: type)
+        let saved = HostingEnvStore.load(for: project)
+        useCustomEnv = saved != nil
+        customEnv = saved ?? ""
+    }
+
+    /// A custom .env can only ship where it is not web-reachable.
+    var supportsCustomEnv: Bool { usesSplitLayout }
+
+    /// Starting point for the editor: the saved one, or what Bana would generate.
+    func draftEnv() -> String {
+        customEnv.isEmpty ? HostingCopier.productionEnv(from: project.url, appURL: HostingCopier.normalizedURL(siteAddress)) : customEnv
+    }
+
+    func saveCustomEnv(_ text: String) throws {
+        customEnv = text
+        try HostingEnvStore.save(text, for: project)
+    }
+
+    func forgetCustomEnv() {
+        HostingEnvStore.delete(for: project)
+        customEnv = ""
+        useCustomEnv = false
     }
 
     /// Zip base name; generic folder names get their parent's name ("fanal-app-pasargad-php").
@@ -106,8 +131,13 @@ final class HostingJob: ObservableObject {
                 notes.append(tr("composer.json نسخهٔ PHP را روی \(platform) قفل کرده؛ vendor برای همان نسخه ساخته می‌شود.", "composer.json pins platform PHP \(platform); vendor is resolved for that version."))
             }
         }
-        if type == .laravel {
+        if useCustomEnv && supportsCustomEnv {
+            notes.append(tr("\(lrm(".env")) دلخواه شما داخل بسته می‌رود (APP_KEY خالی پر می‌شود).", "Your custom .env goes into the package (an empty APP_KEY is filled in)."))
+        }
+        if type == .laravel && !(useCustomEnv && supportsCustomEnv) {
             notes.append(tr("یک \(lrm(".env")) مخصوص هاست از روی \(lrm(".env.example")) ساخته می‌شود، با APP_KEY تازه و APP_DEBUG=false — مشخصات دیتابیس را روی هاست وارد کنید.", "A production .env is generated from .env.example with a fresh APP_KEY and APP_DEBUG=false — fill in the database credentials on the host."))
+        }
+        if type == .laravel {
             notes.append(tr("storage/app (فایل‌های آپلودی و بکاپ‌های لوکال) داخل بسته نیست و هاست خالی شروع می‌کند. اگر داده منتقل می‌کنید، جدا آپلودش کنید.", "storage/app (uploads, local backups) is not included — the host starts empty. Upload it separately if you are moving data."))
             notes.append(tr("بدون SSH: جدول‌ها را با import در phpMyAdmin یا یک Cron یک‌باره بسازید.", "No SSH: create the tables by importing in phpMyAdmin or with a one-off Cron job."))
         }
@@ -219,7 +249,14 @@ final class HostingJob: ObservableObject {
             }
         }
 
-        if type == .laravel {
+        if useCustomEnv && supportsCustomEnv && !customEnv.isEmpty {
+            var doc = EnvDocument(text: customEnv)
+            if type == .laravel && (doc.value("APP_KEY") ?? "").trimmingCharacters(in: .whitespaces).isEmpty {
+                doc.set("APP_KEY", HostingCopier.freshAppKey())
+            }
+            try doc.text.write(to: target.appendingPathComponent(".env"), atomically: true, encoding: .utf8)
+            append(tr("\(lrm("\(app)/.env")) از .env دلخواه شما نوشته شد.", "Wrote \(app)/.env from your custom .env."), .system)
+        } else if type == .laravel {
             let env = HostingCopier.productionEnv(from: src, appURL: HostingCopier.normalizedURL(siteAddress))
             try env.write(to: target.appendingPathComponent(".env"), atomically: true, encoding: .utf8)
             append(tr("\(lrm("\(app)/.env")) ساخته شد (APP_ENV=production، APP_DEBUG=false، APP_KEY تازه).", "Generated \(app)/.env (APP_ENV=production, APP_DEBUG=false, new APP_KEY)."), .system)
@@ -501,12 +538,16 @@ enum HostingCopier {
         return t
     }
 
+    static func freshAppKey() -> String {
+        var key = [UInt8](repeating: 0, count: 32)
+        _ = SecRandomCopyBytes(kSecRandomDefault, key.count, &key)
+        return "base64:" + Data(key).base64EncodedString()
+    }
+
     static func productionEnv(from src: URL, appURL: String? = nil) -> String {
         let text = [".env.production.example", ".env.example"]
             .lazy.compactMap { try? String(contentsOf: src.appendingPathComponent($0), encoding: .utf8) }.first ?? ""
-        var key = [UInt8](repeating: 0, count: 32)
-        _ = SecRandomCopyBytes(kSecRandomDefault, key.count, &key)
-        var values = ["APP_ENV": "production", "APP_DEBUG": "false", "APP_KEY": "base64:" + Data(key).base64EncodedString()]
+        var values = ["APP_ENV": "production", "APP_DEBUG": "false", "APP_KEY": freshAppKey()]
         if let appURL { values["APP_URL"] = appURL }
 
         var seen = Set<String>()
