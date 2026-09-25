@@ -11,10 +11,12 @@
 		15E128341FFB2CD172FBB08C /* PortFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B24CAA49DD747AB8FE54D3 /* PortFinder.swift */; };
 		15FA2F192DDBB96EC85BCBC4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 35F2161918F9765DDCA33AA4 /* Assets.xcassets */; };
 		1AC82654B9B3259715396C93 /* HostingPackager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13D8115148B6F05C8989948C /* HostingPackager.swift */; };
+		1DB079E37EFDF071B90FD6CD /* DatabaseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9C7CD3496DF9536B373D0C2 /* DatabaseSheet.swift */; };
 		208DB5AA8270C6D5C9F45C1E /* BanaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAF9C1B15BC558D8EBBFC76E /* BanaApp.swift */; };
 		20C51BB081554E3E8B5182CE /* ProcessTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA15DDA5424268783509259 /* ProcessTree.swift */; };
 		212ED359A77E2613561F4C81 /* CommandBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5884D79E9A432301549593D0 /* CommandBuilder.swift */; };
 		2350C1FE3BADACB9943B81F6 /* ProjectDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85763E4AC6832910D7F00A2F /* ProjectDetailView.swift */; };
+		27BD7998B9E1E020741E4C61 /* DatabaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C42CD91CFA25B106736B2D /* DatabaseTests.swift */; };
 		2D2AD585432CE718154981A2 /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B11EA6558DDA3B77D849A69 /* QRCodeGenerator.swift */; };
 		2ED0A22EC9312227F7154173 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD53E760E733D4203E82E31 /* Project.swift */; };
 		2FE62DD8E04CFD06222DE59D /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D60CFA66B670FF1677CBAFA /* StatusBadge.swift */; };
@@ -40,6 +42,7 @@
 		C833E4923BE7AFCB5CBB35A9 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5BDECABCEF62610E050C5A /* SettingsStore.swift */; };
 		C8F84B32FB2D2F91AFDC4CA0 /* ProjectCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE481F6B6596755F2843AB0E /* ProjectCard.swift */; };
 		D248FCE1C40C7D2DA2F6FA76 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A657CCB3EBB8A362AAC138 /* SettingsView.swift */; };
+		DA01D863B9F86C3FAE522054 /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D670B44DCBB7F3770B7FAA9 /* Database.swift */; };
 		F1EEB4A4F8D7BF10B77D9B19 /* EnvTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CEBB240E883E65EF0590DE /* EnvTests.swift */; };
 		F7C756715A44171E1D325092 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9727EBEB1DE1B1844A606543 /* AppDelegate.swift */; };
 		F850BCFB660A852086C62632 /* ProjectType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B755F906068DC023BE0270 /* ProjectType.swift */; };
@@ -68,6 +71,7 @@
 		2D2651C59818FEFF9E574614 /* ProjectRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectRuntime.swift; sourceTree = "<group>"; };
 		31A657CCB3EBB8A362AAC138 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		35F2161918F9765DDCA33AA4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		37C42CD91CFA25B106736B2D /* DatabaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseTests.swift; sourceTree = "<group>"; };
 		4E8E7BE3A008DA7A9A2A125E /* ProjectLauncherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectLauncherTests.swift; sourceTree = "<group>"; };
 		509B500719DDB95475B1FD03 /* RealProjectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealProjectsTests.swift; sourceTree = "<group>"; };
 		53940CD8852F148ADA132CC0 /* HostingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostingSheet.swift; sourceTree = "<group>"; };
@@ -87,12 +91,14 @@
 		8881C846FF4F601B08575911 /* ExecutableLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutableLocator.swift; sourceTree = "<group>"; };
 		8A8A956A5A2584E54E07AB20 /* Bana.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bana.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9727EBEB1DE1B1844A606543 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		9D670B44DCBB7F3770B7FAA9 /* Database.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		AB486442F04DD7CC082F31A6 /* BanaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BanaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B746DB9C5F792B548DB9DD3C /* EnvDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvDocument.swift; sourceTree = "<group>"; };
 		B76BA2561E4B976479FB0966 /* Bana.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Bana.entitlements; sourceTree = "<group>"; };
 		BE481F6B6596755F2843AB0E /* ProjectCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectCard.swift; sourceTree = "<group>"; };
 		C1CB538668C926A040969DB8 /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		CAF9C1B15BC558D8EBBFC76E /* BanaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BanaApp.swift; sourceTree = "<group>"; };
+		D9C7CD3496DF9536B373D0C2 /* DatabaseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseSheet.swift; sourceTree = "<group>"; };
 		DD1DA456C0F467B6BB8C2AF7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F48F68BF8CAE9C076F82A944 /* SnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTests.swift; sourceTree = "<group>"; };
 		F757188604CD78628392D962 /* ProjectScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectScanner.swift; sourceTree = "<group>"; };
@@ -113,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				DD1DA456C0F467B6BB8C2AF7 /* ContentView.swift */,
+				D9C7CD3496DF9536B373D0C2 /* DatabaseSheet.swift */,
 				F84A58F90EAFF9942C898514 /* EnvEditorView.swift */,
 				53940CD8852F148ADA132CC0 /* HostingSheet.swift */,
 				0C7952587134CCC212E658F7 /* Localization.swift */,
@@ -175,6 +182,7 @@
 			isa = PBXGroup;
 			children = (
 				5884D79E9A432301549593D0 /* CommandBuilder.swift */,
+				9D670B44DCBB7F3770B7FAA9 /* Database.swift */,
 				B746DB9C5F792B548DB9DD3C /* EnvDocument.swift */,
 				8881C846FF4F601B08575911 /* ExecutableLocator.swift */,
 				13D8115148B6F05C8989948C /* HostingPackager.swift */,
@@ -200,6 +208,7 @@
 		EF0A44BC37EE2BC611574702 /* BanaTests */ = {
 			isa = PBXGroup;
 			children = (
+				37C42CD91CFA25B106736B2D /* DatabaseTests.swift */,
 				79CEBB240E883E65EF0590DE /* EnvTests.swift */,
 				0471C4100ADE39571F0154A4 /* HostingTests.swift */,
 				4E8E7BE3A008DA7A9A2A125E /* ProjectLauncherTests.swift */,
@@ -308,6 +317,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27BD7998B9E1E020741E4C61 /* DatabaseTests.swift in Sources */,
 				F1EEB4A4F8D7BF10B77D9B19 /* EnvTests.swift in Sources */,
 				63229491519DAE19970920BB /* HostingTests.swift in Sources */,
 				7BEC977B42AFF4CCBDED6F33 /* ProjectLauncherTests.swift in Sources */,
@@ -324,6 +334,8 @@
 				208DB5AA8270C6D5C9F45C1E /* BanaApp.swift in Sources */,
 				212ED359A77E2613561F4C81 /* CommandBuilder.swift in Sources */,
 				8C4E2F111F3248833EDABD72 /* ContentView.swift in Sources */,
+				DA01D863B9F86C3FAE522054 /* Database.swift in Sources */,
+				1DB079E37EFDF071B90FD6CD /* DatabaseSheet.swift in Sources */,
 				FE858C65F988BC7033C9364B /* EnvDocument.swift in Sources */,
 				37AD4CCDBF12F765079A486D /* EnvEditorView.swift in Sources */,
 				4181F97C2D6A6525FAE08166 /* ExecutableLocator.swift in Sources */,

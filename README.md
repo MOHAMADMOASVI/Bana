@@ -18,6 +18,14 @@ Scanning goes 5 levels deep, skips `node_modules`, `vendor` and similar, and sto
 
 The **.env** button on a project lists its `.env*` files (root and `deploy/**`) and edits them as a form, with secrets hidden, or as plain text. Comments and order are kept, and file permissions are preserved (new files are created owner-only). If `.env` is missing, it can be created from `.env.example`.
 
+## Database
+
+The **Database** button reads the connection from the project's `.env` (`DB_CONNECTION` mysql/mariadb/sqlite). You can also enter one by hand; it is saved owner-only and takes precedence. The window shows tables with approximate rows and size, and offers:
+
+* **Export**: `mysqldump --single-transaction --routines --triggers` (or `sqlite3 .dump`), optionally structure-only or gzip. The **For shared hosting** option strips `DEFINER` and `DROP TABLE`, so an import into a database that has tables fails instead of wiping it.
+* **Import**: `.sql` / `.sql.gz`. A full backup is taken first (to `~/Documents/Bana/Database Backups`), and if the database already has tables you must type its name to confirm.
+* Tools are found in MAMP, Homebrew, XAMPP, DBngin or `/usr/local/mysql`. Credentials go through a temporary owner-only option file, never on the command line.
+
 ## Prepare for Hosting
 
 The **Hosting** button builds `<name>-hosting-<date>.zip` (on the Desktop by default) for cPanel/DirectAdmin hosts with no SSH:

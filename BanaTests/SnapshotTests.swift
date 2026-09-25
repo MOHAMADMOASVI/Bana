@@ -39,6 +39,7 @@ final class SnapshotTests: XCTestCase {
             ("tile", AnyView(ProjectCard(runtime: store.runtime(for: laravel), project: laravel, style: .tile).frame(width: 260).padding()), CGSize(width: 300, height: 220)),
             ("settings", AnyView(SettingsView()), CGSize(width: 500, height: 520)),
             ("welcome", AnyView(OverviewGrid()), CGSize(width: 700, height: 460)),
+            ("database", AnyView(DatabaseSheet(project: laravel)), CGSize(width: 720, height: 620)),
             ("envfiles", AnyView(LocalEnvSheet(project: laravel, isRunning: true)), CGSize(width: 540, height: 480)),
             ("enveditor", AnyView(EnvEditorView(title: ".env", subtitle: laravel.url.appendingPathComponent(".env").path,
                 text: "# App\nAPP_NAME=Pasargad\nAPP_ENV=local\nAPP_KEY=base64:secretsecret\nAPP_DEBUG=true\n\n# Database\nDB_CONNECTION=mysql\nDB_HOST=127.0.0.1\nDB_DATABASE=pasargad\nDB_PASSWORD=hunter2\n") { _ in }),
@@ -54,7 +55,7 @@ final class SnapshotTests: XCTestCase {
                 window.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
                 window.contentView = host
                 host.layoutSubtreeIfNeeded()
-                try await Task.sleep(nanoseconds: 400_000_000)
+                try await Task.sleep(nanoseconds: name == "database" ? 2_500_000_000 : 400_000_000)
                 host.layoutSubtreeIfNeeded()
                 let rep = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
                 host.cacheDisplay(in: host.bounds, to: rep)

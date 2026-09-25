@@ -10,6 +10,7 @@ struct ProjectDetailView: View {
     @State private var showSettings = false
     @State private var hostingJob: HostingJob?
     @State private var showEnv = false
+    @State private var showDatabase = false
 
     var body: some View {
         let type = store.type(of: project)
@@ -27,6 +28,7 @@ struct ProjectDetailView: View {
         .navigationTitle(project.name)
         .onAppear(perform: loadSettings)
         .sheet(item: $hostingJob) { HostingSheet(job: $0).localizedUI() }
+        .sheet(isPresented: $showDatabase) { DatabaseSheet(project: project).localizedUI() }
         .sheet(isPresented: $showEnv) { LocalEnvSheet(project: project, isRunning: runtime.status.isActive).localizedUI() }
     }
 
@@ -75,6 +77,10 @@ struct ProjectDetailView: View {
                     Label(tr("آماده‌سازی هاست", "Prepare for Hosting"), systemImage: "shippingbox.and.arrow.backward")
                 }
                 .help(tr("ساخت فایل zip آمادهٔ آپلود روی هاست", "Build an upload-ready zip for shared hosting"))
+                Button { showDatabase = true } label: {
+                    Label(tr("دیتابیس", "Database"), systemImage: "cylinder.split.1x2")
+                }
+                .help(tr("جدول‌ها، خروجی و وارد کردن SQL", "Tables, SQL export and import"))
                 Button { showEnv = true } label: {
                     Label(".env", systemImage: "key.horizontal")
                 }
